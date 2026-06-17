@@ -33,8 +33,10 @@ label .auto{color:#059669;font-size:10px;margin-left:3px;background:#d1fae5;padd
 label .db{color:#7c3aed;font-size:10px;margin-left:3px;background:#ede9fe;padding:1px 5px;border-radius:8px}
 input[type=text],input[type=date],select,textarea{border:1.5px solid #fac8d8;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;width:100%;background:#fffbfc;color:#4a2030}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#e890a8;background:white}
-.next-visit-group{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;max-width:50%}
-.day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:38px;border-radius:8px;font-size:13px;font-weight:700;background:#fdf0f3;color:#d0a0b0;border:1.5px solid #fac8d8;white-space:nowrap;flex-shrink:0}
+.next-visit-group{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;width:100%}
+.next-visit-group input[type=date]{font-size:18px;height:52px;padding:0 12px}
+.next-visit-group select{font-size:18px;height:52px;padding:0 12px}
+.day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:64px;height:52px;border-radius:10px;font-size:18px;font-weight:700;background:#fdf0f3;color:#d0a0b0;border:1.5px solid #fac8d8;white-space:nowrap;flex-shrink:0}
 .day-badge.filled{color:#c06080;border-color:#e890a8}
 .day-badge.sat{background:#f0ecff;color:#7c3aed;border-color:#c4b5fd}
 .day-badge.sun{background:#fff0f0;color:#dc2626;border-color:#fca5a5}
