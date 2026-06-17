@@ -248,12 +248,12 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 // ── DBロード ──
 let DB = {
   companies: [
-    { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', trainees:[
+    { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', contactName:'担当者名をここに入力', contactEmail:'メールアドレスをここに入力', trainees:[
       {name:'HOANG THI BICH NGOC', certNo:'第○○○○○号', nationality:'ベトナム'},
       {name:'TO THI HUONG',        certNo:'第○○○○○号', nationality:'ベトナム'},
       {name:'TRAN VAN TUNG',       certNo:'第○○○○○号', nationality:'ベトナム'}
     ]},
-    { id:'kyoei', name:'株式会社協栄', trainees:[
+    { id:'kyoei', name:'株式会社協栄', contactName:'担当者名をここに入力', contactEmail:'メールアドレスをここに入力', trainees:[
       {name:'HO VAN AN',      certNo:'第○○○○○号', nationality:'ベトナム'},
       {name:'NGUYEN THI LAN', certNo:'第○○○○○号', nationality:'ベトナム'}
     ]}
@@ -442,9 +442,12 @@ function saveRecord() {
   btn.textContent = '保存中…';
   btn.classList.add('disabled');
 
+  const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
   const record = {
     savedAt: new Date().toISOString(),
-    company: document.getElementById('companySelect').options[document.getElementById('companySelect').selectedIndex]?.text || '',
+    company: selectedCompany?.name || '',
+    contactName: selectedCompany?.contactName || '',
+    contactEmail: selectedCompany?.contactEmail || '',
     staff: document.getElementById('staffSelect').value,
     interviewMode: document.getElementById('traineeSection').classList.contains('show') ? 'あり' : 'なし',
     trainees: rows.map(r => ({ name: r.select.value, certNo: r.autoDiv.textContent })),
