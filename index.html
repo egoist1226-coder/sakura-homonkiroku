@@ -314,7 +314,7 @@ function addTrainee() {
   const nl = document.createElement('label'); nl.innerHTML = '氏名<span class="db">DB</span>';
   const sel = document.createElement('select');
   sel.innerHTML = '<option value="">選択してください</option>' +
-    currentTrainees.map(t => <option value=""></option>).join('');
+    currentTrainees.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
   sel.onchange = () => onNameChange(idx);
   nf.appendChild(nl); nf.appendChild(sel);
   const af = document.createElement('div'); af.className = 'field';
@@ -358,7 +358,7 @@ function updateAddBtn() {
   const b = document.getElementById('addBtn');
   const limit = Math.min(MAX, currentTrainees.length);
   b.disabled = rows.length >= limit;
-  b.textContent = rows.length >= limit ? 全名を選択済 : ＋ 面談した実習生を追加（残り名）;
+  b.textContent = rows.length >= limit ? `全${limit}名を選択済` : `＋ 面談した実習生を追加（残り${limit - rows.length}名）`;
 }
 
 // ── 次回訪問 ──
@@ -408,8 +408,8 @@ function initCanvas(id, onEnd) {
 initCanvas('signCanvas', () => {
   const n = new Date(), y = n.getFullYear()-2018, m = String(n.getMonth()+1).padStart(2,'0'),
     d = String(n.getDate()).padStart(2,'0'), h = String(n.getHours()).padStart(2,'0'), mi = String(n.getMinutes()).padStart(2,'0');
-  document.getElementById('dateDisplay').textContent = 令和年月日;
-  document.getElementById('timestamp').innerHTML = ✅ 署名時刻：令和年月日 :（自動記録）;
+  document.getElementById('dateDisplay').textContent = `令和${y}年${m}月${d}日`;
+  document.getElementById('timestamp').innerHTML = `✅ 署名時刻：令和${y}年${m}月${d}日 ${h}:${mi}（自動記録）`;
 });
 initCanvas('sokenCanvas');
 
