@@ -33,9 +33,9 @@ label .auto{color:#059669;font-size:10px;margin-left:3px;background:#d1fae5;padd
 label .db{color:#7c3aed;font-size:10px;margin-left:3px;background:#ede9fe;padding:1px 5px;border-radius:8px}
 input[type=text],input[type=date],select,textarea{border:1.5px solid #fac8d8;border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;width:100%;background:#fffbfc;color:#4a2030}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#e890a8;background:white}
-.next-visit-group{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;width:100%}
-.next-visit-group input[type=date]{font-size:18px;height:52px;padding:0 12px}
-.next-visit-group select{font-size:18px;height:52px;padding:0 12px}
+.next-visit-group{display:grid !important;grid-template-columns:1fr auto 1fr !important;gap:12px;align-items:center;width:100% !important;max-width:none !important}
+.next-visit-group input[type=date]{font-size:18px !important;height:52px !important;padding:0 12px !important;width:100% !important}
+.next-visit-group select{font-size:18px !important;height:52px !important;padding:0 12px !important;width:100% !important}
 .day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:64px;height:52px;border-radius:10px;font-size:18px;font-weight:700;background:#fdf0f3;color:#d0a0b0;border:1.5px solid #fac8d8;white-space:nowrap;flex-shrink:0}
 .day-badge.filled{color:#c06080;border-color:#e890a8}
 .day-badge.sat{background:#f0ecff;color:#7c3aed;border-color:#c4b5fd}
@@ -193,7 +193,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span></div>
     <div class="field">
       <div class="next-visit-group">
-        <input type="date" id="nextDate" class="empty" oninput="onNextVisitChange()" onchange="onNextVisitChange()">
+        <input type="date" id="nextDate" class="empty">
         <span class="day-badge" id="dayBadge">―</span>
         <select id="nextTime" class="empty" onchange="onNextVisitChange()">
           <option value="">時刻</option>
@@ -362,7 +362,6 @@ function updateAddBtn() {
 }
 
 // ── 次回訪問 ──
-document.getElementById('nextTime').value = '13:00';
 function onNextVisitChange() {
   const date = document.getElementById('nextDate');
   const time = document.getElementById('nextTime');
@@ -382,6 +381,13 @@ function onNextVisitChange() {
   document.getElementById('submitWarn').style.display = filled ? 'none' : '';
   signEnabled = filled;
 }
+
+// iPad Safari でも確実に発火するようJSで直接リスナー登録
+document.getElementById('nextDate').addEventListener('change', onNextVisitChange);
+document.getElementById('nextDate').addEventListener('input', onNextVisitChange);
+document.getElementById('nextTime').addEventListener('change', onNextVisitChange);
+// 初期状態を反映（時刻は13:00選択済みなので日付だけ待ち）
+onNextVisitChange();
 
 // ── Canvas ──
 function initCanvas(id, onEnd) {
