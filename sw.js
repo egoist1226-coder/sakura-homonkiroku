@@ -1,7 +1,5 @@
-const CACHE = 'sakura-v3';
+const CACHE = 'sakura-v4';
 const ASSETS = [
-  './',
-  './index.html',
   './db.json',
   './manifest.json'
 ];
@@ -19,6 +17,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  // index.html は常にネットワーク優先（キャッシュは使わない）
+  if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  // その他はキャッシュ優先
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
   );
