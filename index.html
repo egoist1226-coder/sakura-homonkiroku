@@ -429,24 +429,50 @@ function showToast(msg) {
   setTimeout(() => { t.className = 'toast'; }, 3000);
 }
 
-// ── 保存（JSONをローカルダウンロード ※Google Drive連携は次フェーズ） ──
+// ── Google Drive 保存 ──
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz4YqB72L8NnUzfUlewPwoX8eD0SWx9bPSun_EQMjY-z3W4po1yMRAjajKgM_z4QCJ/exec';
+
 function saveRecord() {
+  const btn = document.getElementById('btnSave');
+  btn.textContent = '保存中…';
+  btn.classList.add('disabled');
+
   const record = {
     savedAt: new Date().toISOString(),
     company: document.getElementById('companySelect').options[document.getElementById('companySelect').selectedIndex]?.text || '',
     staff: document.getElementById('staffSelect').value,
+    interviewMode: document.getElementById('traineeSection').classList.contains('show') ? 'あり' : 'なし',
     trainees: rows.map(r => ({ name: r.select.value, certNo: r.autoDiv.textContent })),
-    nextVisit: document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
+    checklist: Array.from(document.querySelectorAll('.check-grid input[type=checkbox]')).map(cb => ({
+      label: cb.closest('label')?.querySelector('span')?.textContent || '',
+      checked: cb.checked
+    })),
+    accAddress: document.getElementById('accCheck').checked ? document.getElementById('accAddr').value : '',
     somuNote: document.getElementById('somuNote').value,
     reportNote: document.getElementById('reportNote').value,
+    sokenMode: document.querySelector('input[name=soken]:checked')?.parentElement?.textContent?.trim() || '',
+    sokenText: document.getElementById('sokenText').value,
+    signatureImage: document.getElementById('signCanvas').toDataURL('image/png'),
+    nextVisit: document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
     signTimestamp: document.getElementById('timestamp').textContent
   };
-  const blob = new Blob([JSON.stringify(record, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 訪問記録__.json;
-  a.click();
-  showToast('✅ 記録を保存しました');
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record)
+  })
+  .then(() => {
+    showToast('✅ Google Driveに保存しました');
+    btn.textContent = 'クラウドに保存';
+    btn.classList.remove('disabled');
+  })
+  .catch(() => {
+    showToast('⚠ 保存に失敗しました（オフライン？）');
+    btn.textContent = 'クラウドに保存';
+    btn.classList.remove('disabled');
+  });
 }
 
 // ── PDF出力（次フェーズでjsPDF実装 ── 現在は印刷ダイアログ） ──
