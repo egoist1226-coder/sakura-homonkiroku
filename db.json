@@ -1,0 +1,24 @@
+{
+  "companies": [
+    {
+      "id": "hokkaido_beer",
+      "name": "北海道麦酒醸造株式会社",
+      "trainees": [
+        { "name": "HOANG THI BICH NGOC", "certNo": "第○○○○○号", "nationality": "ベトナム" },
+        { "name": "TO THI HUONG",        "certNo": "第○○○○○号", "nationality": "ベトナム" },
+        { "name": "TRAN VAN TUNG",       "certNo": "第○○○○○号", "nationality": "ベトナム" }
+      ]
+    },
+    {
+      "id": "kyoei",
+      "name": "株式会社協栄",
+      "trainees": [
+        { "name": "HO VAN AN",      "certNo": "第○○○○○号", "nationality": "ベトナム" },
+        { "name": "NGUYEN THI LAN", "certNo": "第○○○○○号", "nationality": "ベトナム" }
+      ]
+    }
+  ],
+  "staff": [
+    { "name": "宮武　薫" }
+  ]
+}
