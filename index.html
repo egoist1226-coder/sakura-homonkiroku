@@ -475,10 +475,85 @@ function saveRecord() {
   });
 }
 
-// ── PDF出力（次フェーズでjsPDF実装 ── 現在は印刷ダイアログ） ──
+// ── PDF出力（html2canvas + jsPDF） ──
 function exportPdf() {
-  showToast('🖨 印刷ダイアログを開いています…');
-  setTimeout(() => window.print(), 500);
+  const btn = document.getElementById('btnPdf');
+  btn.textContent = 'PDF生成中…';
+  btn.classList.add('disabled');
+  showToast('📄 PDFを生成しています…');
+
+  // ライブラリを動的ロード（初回のみ）
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', function() {
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', function() {
+      const target = document.querySelector('.form-wrap');
+
+      // submit-bar を一時非表示にしてPDF化
+      const bar = document.querySelector('.submit-bar');
+      bar.style.display = 'none';
+
+      html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#fffbfc',
+        logging: false
+      }).then(function(canvas) {
+        bar.style.display = '';
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const pageW = 210; // A4幅(mm)
+        const pageH = 297; // A4高さ(mm)
+        const margin = 8;
+        const imgW = pageW - margin * 2;
+        const imgH = (canvas.height * imgW) / canvas.width;
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+        // 複数ページ対応
+        let posY = margin;
+        let remaining = imgH;
+        let srcY = 0;
+
+        while (remaining > 0) {
+          const sliceH = Math.min(remaining, pageH - margin * 2);
+          const sliceCanvas = document.createElement('canvas');
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = (sliceH / imgH) * canvas.height;
+          const ctx = sliceCanvas.getContext('2d');
+          ctx.drawImage(canvas, 0, srcY * (canvas.height / imgH), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+          const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+          pdf.addImage(sliceData, 'JPEG', margin, posY, imgW, sliceH);
+
+          remaining -= sliceH;
+          srcY += sliceH;
+          if (remaining > 0) { pdf.addPage(); posY = margin; }
+        }
+
+        // ファイル名: 訪問記録_企業名_日付.pdf
+        const company = document.getElementById('companySelect').options[document.getElementById('companySelect').selectedIndex]?.text || '未設定';
+        const date = document.getElementById('nextDate').value || new Date().toISOString().slice(0,10);
+        pdf.save('訪問記録_' + company + '_' + date + '.pdf');
+
+        showToast('✅ PDFを保存しました');
+        btn.textContent = 'PDF出力';
+        btn.classList.remove('disabled');
+      }).catch(function(err) {
+        bar.style.display = '';
+        showToast('⚠ PDF生成に失敗しました');
+        btn.textContent = 'PDF出力';
+        btn.classList.remove('disabled');
+        console.error(err);
+      });
+    });
+  });
+}
+
+function loadScript(src, cb) {
+  if (document.querySelector('script[src="' + src + '"]')) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = src; s.onload = cb;
+  document.head.appendChild(s);
 }
 
 // ── PWA Service Worker登録 ──
