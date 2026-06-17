@@ -1,4 +1,4 @@
-const CACHE = 'sakura-v1';
+const CACHE = 'sakura-v2';
 const ASSETS = [
   './',
   './index.html',
