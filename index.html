@@ -244,48 +244,45 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 
 <script>
 // ── DBロード ──
-let DB = { companies: [], staff: [] };
+let DB = {
+  companies: [
+    { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', trainees:[
+      {name:'HOANG THI BICH NGOC', certNo:'第○○○○○号', nationality:'ベトナム'},
+      {name:'TO THI HUONG',        certNo:'第○○○○○号', nationality:'ベトナム'},
+      {name:'TRAN VAN TUNG',       certNo:'第○○○○○号', nationality:'ベトナム'}
+    ]},
+    { id:'kyoei', name:'株式会社協栄', trainees:[
+      {name:'HO VAN AN',      certNo:'第○○○○○号', nationality:'ベトナム'},
+      {name:'NGUYEN THI LAN', certNo:'第○○○○○号', nationality:'ベトナム'}
+    ]}
+  ],
+  staff:[{name:'宮武　薫'}]
+};
 let currentTrainees = [];
 let rows = [];
 let signEnabled = false;
 const MAX = 3;
 const DAYS = ['（日）','（月）','（火）','（水）','（木）','（金）','（土）'];
 
-fetch('./db.json').then(r => r.json()).then(data => {
-  DB = data;
+function populateSelects() {
   const cs = document.getElementById('companySelect');
+  while (cs.options.length > 1) cs.remove(1);
   DB.companies.forEach(c => {
     const o = document.createElement('option');
     o.value = c.id; o.textContent = c.name;
     cs.appendChild(o);
   });
   const ss = document.getElementById('staffSelect');
+  while (ss.options.length > 1) ss.remove(1);
   DB.staff.forEach(s => {
     const o = document.createElement('option');
     o.value = s.name; o.textContent = s.name;
     ss.appendChild(o);
   });
-}).catch(() => {
-  // オフライン時はデモデータ使用
-  DB = {
-    companies: [
-      { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', trainees:[
-        {name:'HOANG THI BICH NGOC',certNo:'第○○○○○号'},
-        {name:'TO THI HUONG',certNo:'第○○○○○号'},
-        {name:'TRAN VAN TUNG',certNo:'第○○○○○号'}
-      ]},
-      { id:'kyoei', name:'株式会社協栄', trainees:[
-        {name:'HO VAN AN',certNo:'第○○○○○号'},
-        {name:'NGUYEN THI LAN',certNo:'第○○○○○号'}
-      ]}
-    ],
-    staff:[{name:'宮武　薫'}]
-  };
-  const cs = document.getElementById('companySelect');
-  DB.companies.forEach(c => { const o=document.createElement('option');o.value=c.id;o.textContent=c.name;cs.appendChild(o); });
-  const ss = document.getElementById('staffSelect');
-  DB.staff.forEach(s => { const o=document.createElement('option');o.value=s.name;o.textContent=s.name;ss.appendChild(o); });
-});
+}
+populateSelects();
+
+fetch('./db.json').then(r => r.json()).then(data => { DB = data; populateSelects(); }).catch(() => {});
 
 function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
