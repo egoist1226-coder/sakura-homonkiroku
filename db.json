@@ -17,10 +17,10 @@
       "contactName": "大山　弘幸",
       "contactEmail": "h.oyama@kyoei-inc.jp",
       "trainees": [
-        { "name": "HO MANH CUONG",    "certNo": "認2508037651", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "1996年12月（日要確認）" },
+        { "name": "HO MANH CUONG",    "certNo": "認2508037651", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "1996年12月06日" },
         { "name": "NGUYEN XUAN TRUNG","certNo": "認2508037652", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "2002年03月22日" },
         { "name": "LE VAN THONG",     "certNo": "認2408043253", "grade": "技能実習3号", "nationality": "ベトナム", "gender": "男", "birthDate": "1998年08月12日" },
-        { "name": "TRAN XUAN TRUONG", "certNo": "認240800946（末尾要確認）", "grade": "技能実習2号", "nationality": "ベトナム", "gender": "男", "birthDate": "2001年06月02日" }
+        { "name": "TRAN XUAN TRUONG", "certNo": "認2408009462", "grade": "技能実習2号", "nationality": "ベトナム", "gender": "男", "birthDate": "2001年06月02日" }
       ]
     }
   ],
