@@ -6,9 +6,13 @@
       "contactName": "戸田　貴",
       "contactEmail": "toda@hokkaidobeer.com",
       "trainees": [
-        { "name": "HOANG THI BICH NGOC", "certNo": "第○○○○○号", "nationality": "ベトナム", "gender": "女", "birthDate": "" },
-        { "name": "TO THI HUONG",        "certNo": "第○○○○○号", "nationality": "ベトナム", "gender": "女", "birthDate": "" },
-        { "name": "TRAN VAN TUNG",       "certNo": "第○○○○○号", "nationality": "ベトナム", "gender": "男", "birthDate": "" }
+        { "name": "LE THI HOAI",       "certNo": "認番号確認要",  "grade": "技能実習3号", "nationality": "ベトナム", "gender": "女", "birthDate": "1990年06月02日" },
+        { "name": "NONG KHANH THINH",  "certNo": "認2401004691", "grade": "技能実習3号", "nationality": "ベトナム", "gender": "男", "birthDate": "1997年07月05日" },
+        { "name": "TRAN THI DIEU",     "certNo": "認2401001594", "grade": "技能実習2号", "nationality": "ベトナム", "gender": "女", "birthDate": "1997年06月10日" },
+        { "name": "PHAN VAN PHUC",     "certNo": "認2401005783", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "2001年01月28日" },
+        { "name": "HOANG DINH TRONG",  "certNo": "認2601000111", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "2005年09月07日" },
+        { "name": "TO BACH DO",        "certNo": "認2601000112", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "女", "birthDate": "2006年07月02日" },
+        { "name": "TRAN TRUNG DUC",    "certNo": "認2601000113", "grade": "技能実習1号", "nationality": "ベトナム", "gender": "男", "birthDate": "1995年03月11日" }
       ]
     },
     {
