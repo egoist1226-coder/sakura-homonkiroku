@@ -315,7 +315,7 @@ function populateSelects() {
 }
 populateSelects();
 
-fetch('./db.json').then(r => r.json()).then(data => { DB = data; populateSelects(); }).catch(() => {});
+// db.jsonによる上書き無効（インラインDBが正式データ）
 
 function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
