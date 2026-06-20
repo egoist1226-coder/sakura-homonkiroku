@@ -96,6 +96,17 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 .toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;white-space:nowrap}
 .toast.show{display:block;animation:fadeInOut 3s forwards}
 @keyframes fadeInOut{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+.photo-section{margin-top:10px}
+.photo-btn{display:flex;align-items:center;gap:8px;background:#fdf0f3;border:1.5px solid #fac8d8;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;color:#c06080;cursor:pointer;width:100%}
+.photo-btn:active{background:#fad5e0}
+.photo-thumbnails{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.photo-thumb{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1.5px solid #fac8d8;cursor:pointer;flex-shrink:0}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .del-photo{position:absolute;top:2px;right:2px;background:rgba(220,38,38,.8);color:white;border:none;border-radius:4px;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.photo-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.photo-lightbox.show{display:flex}
+.photo-lightbox img{max-width:92vw;max-height:80vh;border-radius:10px;object-fit:contain}
+.photo-lightbox-close{color:white;font-size:14px;font-weight:600;background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:8px 24px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -236,6 +247,20 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     </div>
   </div>
 
+  <!-- G 現場写真 -->
+  <div class="section photo-section">
+    <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
+    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
+    <div class="photo-thumbnails" id="photoThumbnails"></div>
+  </div>
+
+  <!-- ライトボックス -->
+  <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="">
+    <button class="photo-lightbox-close" onclick="closeLightbox()">閉じる</button>
+  </div>
+
   <div class="submit-bar">
     <div class="submit-warn" id="submitWarn">⚠ 次回訪問予定日時の入力が必要です</div>
     <button class="btn-pdf disabled" id="btnPdf" onclick="exportPdf()">PDF出力</button>
@@ -260,7 +285,7 @@ let DB = {
       {name:'TRAN XUAN TRUONG', certNo:'認2408009462', grade:'技能実習2号', nationality:'ベトナム', gender:'男', birthDate:'2001年06月02日'}
     ]}
   ],
-  staff:[{name:'宮武　薫'}]
+  staff:[{name:'宮武　薫'},{name:'松島　妙子'}]
 };
 let currentTrainees = [];
 let rows = [];
@@ -436,6 +461,45 @@ function showToast(msg) {
   setTimeout(() => { t.className = 'toast'; }, 3000);
 }
 
+// ── 現場写真 ──
+let photos = []; // {dataUrl, name}
+
+function onPhotosSelected(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      photos.push({ dataUrl: ev.target.result, name: file.name });
+      renderThumbnails();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderThumbnails() {
+  const container = document.getElementById('photoThumbnails');
+  container.innerHTML = '';
+  photos.forEach((p, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'photo-thumb';
+    const img = document.createElement('img'); img.src = p.dataUrl;
+    img.onclick = () => openLightbox(p.dataUrl);
+    const del = document.createElement('button'); del.className = 'del-photo'; del.textContent = '✕';
+    del.onclick = (e) => { e.stopPropagation(); photos.splice(i, 1); renderThumbnails(); };
+    wrap.appendChild(img); wrap.appendChild(del);
+    container.appendChild(wrap);
+  });
+}
+
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('photoLightbox').classList.add('show');
+}
+
+function closeLightbox() {
+  document.getElementById('photoLightbox').classList.remove('show');
+}
+
 // ── Google Drive 保存 ──
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwz4YqB72L8NnUzfUlewPwoX8eD0SWx9bPSun_EQMjY-z3W4po1yMRAjajKgM_z4QCJ/exec';
 
@@ -464,7 +528,8 @@ function saveRecord() {
     sokenText: document.getElementById('sokenText').value,
     signatureImage: document.getElementById('signCanvas').toDataURL('image/png'),
     nextVisit: document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
-    signTimestamp: document.getElementById('timestamp').textContent
+    signTimestamp: document.getElementById('timestamp').textContent,
+    photos: photos.map(p => p.dataUrl)
   };
 
   fetch(GAS_URL, {
