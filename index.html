@@ -190,7 +190,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <!-- 総務要望 -->
   <div class="section somu">
     <div class="sec-title"><span class="icon">📋</span>さくら研修機構 総務部からの要望事項<span class="somu-badge">総務記入欄</span></div>
-    <textarea id="somuNote" rows="8" style="resize:vertical;font-size:16px;line-height:2" placeholder="【総務部が記入】訪問担当者への指示・確認依頼・特記事項などを記載してください。"></textarea>
+    <textarea id="somuNote" rows="3" style="resize:vertical;font-size:16px;line-height:2" placeholder="【総務部が記入】訪問担当者への指示・確認依頼・特記事項などを記載してください。"></textarea>
   </div>
 
   <!-- D 報告事項 -->
@@ -202,18 +202,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <!-- E 総合所見 -->
   <div class="section">
     <div class="sec-title"><span class="icon">🌸</span>訪問担当者の総合所見</div>
-    <div class="radio-group">
-      <label class="radio-item selected" onclick="selectSoken(this,'none')"><input type="radio" name="soken" checked> 特になし</label>
-      <label class="radio-item" onclick="selectSoken(this,'write')"><input type="radio" name="soken"> 記載事項あり</label>
-    </div>
-    <div class="soken-area" id="sokenArea">
-      <div class="soken-canvas">
-        <div class="sign-label">手書き / ペン入力（Apple Pencil対応）<button onclick="clearCanvas('sokenCanvas')">クリア</button></div>
-        <canvas id="sokenCanvas" width="660" height="130"></canvas>
-      </div>
-      <div class="notice">テキスト入力も可能です：</div>
-      <textarea id="sokenText" rows="6" placeholder="テキストでの入力はこちら" style="margin-top:6px;font-size:16px;line-height:2"></textarea>
-    </div>
+    <textarea id="sokenText" rows="10" style="resize:vertical;font-size:16px;line-height:2" placeholder="総合所見を記載してください。（Apple Pencilでの手書き入力・テキスト入力どちらも可）"></textarea>
   </div>
 
   <!-- F 現場写真 -->
@@ -508,7 +497,6 @@ initCanvas('signCanvas', () => {
   document.getElementById('dateDisplay').textContent = `令和${y}年${m}月${d}日`;
   document.getElementById('timestamp').innerHTML = `✅ 署名時刻：令和${y}年${m}月${d}日 ${h}:${mi}（自動記録）`;
 });
-initCanvas('sokenCanvas');
 
 function clearCanvas(id) {
   const c = document.getElementById(id); c.getContext('2d').clearRect(0,0,c.width,c.height);
@@ -519,11 +507,6 @@ function clearCanvas(id) {
 }
 
 function toggleAcc(cb) { document.getElementById('accDetail').classList.toggle('show', cb.checked); }
-function selectSoken(el, mode) {
-  document.querySelectorAll('.radio-item').forEach(r => r.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('sokenArea').classList.toggle('show', mode === 'write');
-}
 
 // ── トースト通知 ──
 function showToast(msg) {
@@ -594,7 +577,6 @@ function saveRecord() {
     accAddress: document.getElementById('accCheck').checked ? document.getElementById('accAddr').value : '',
     somuNote: document.getElementById('somuNote').value,
     reportNote: document.getElementById('reportNote').value,
-    sokenMode: document.querySelector('input[name=soken]:checked')?.parentElement?.textContent?.trim() || '',
     sokenText: document.getElementById('sokenText').value,
     signatureImage: document.getElementById('signCanvas').toDataURL('image/png'),
     nextVisit: document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
