@@ -14,8 +14,8 @@
     {
       "id": "kyoei",
       "name": "株式会社協栄",
-      "contactName": "担当者名をここに入力",
-      "contactEmail": "メールアドレスをここに入力",
+      "contactName": "大山　弘幸",
+      "contactEmail": "h.oyama@kyoei-inc.jp",
       "trainees": [
         { "name": "HO VAN AN",      "certNo": "第○○○○○号", "nationality": "ベトナム" },
         { "name": "NGUYEN THI LAN", "certNo": "第○○○○○号", "nationality": "ベトナム" }
