@@ -263,6 +263,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 
   <div class="submit-bar">
     <div class="submit-warn" id="submitWarn">⚠ 次回訪問予定日時の入力が必要です</div>
+    <button class="btn-pdf" style="background:white;color:#999;border:1.5px solid #ddd;font-size:11px;padding:6px 12px" onclick="hardRefresh()">🔄 アプリ更新</button>
     <button class="btn-pdf disabled" id="btnPdf" onclick="exportPdf()">PDF出力</button>
     <button class="btn-save disabled" id="btnSave" onclick="saveRecord()">保存と企業様へ送信</button>
   </div>
@@ -552,6 +553,24 @@ function saveRecord() {
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
   });
+}
+
+// ── キャッシュ強制クリア＆更新 ──
+function hardRefresh() {
+  if (!confirm('アプリを最新版に更新します。入力中のデータは消えます。続けますか？')) return;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      Promise.all(regs.map(r => r.unregister())).then(() => {
+        caches.keys().then(keys => {
+          Promise.all(keys.map(k => caches.delete(k))).then(() => {
+            location.reload(true);
+          });
+        });
+      });
+    });
+  } else {
+    location.reload(true);
+  }
 }
 
 // ── PDF出力（html2canvas + jsPDF） ──
