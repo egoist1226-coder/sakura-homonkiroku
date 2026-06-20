@@ -107,6 +107,17 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 .photo-lightbox.show{display:flex}
 .photo-lightbox img{max-width:92vw;max-height:80vh;border-radius:10px;object-fit:contain}
 .photo-lightbox-close{color:white;font-size:14px;font-weight:600;background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:8px 24px;cursor:pointer}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-radius:8px;margin-bottom:6px;background:#fffbfc;border:1.5px solid #fac8d8}
+.res-row.warn-yellow{background:#fefce8;border-color:#fde047}
+.res-row.warn-red{background:#fef2f2;border-color:#fca5a5}
+.res-name{font-size:13px;font-weight:600;color:#4a2030}
+.res-expiry{font-size:13px;font-weight:700;color:#4a2030;text-align:right}
+.res-expiry.warn-yellow{color:#854d0e}
+.res-expiry.warn-red{color:#dc2626}
+.res-expiry.no-data{color:#a0aec0;font-weight:400;font-size:12px}
+.res-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:8px;white-space:nowrap}
+.res-badge.yellow{background:#fde047;color:#713f12}
+.res-badge.red{background:#fca5a5;color:#7f1d1d}
 </style>
 </head>
 <body>
@@ -152,6 +163,12 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
       <div class="trainee-list" id="traineeList"></div>
       <button class="add-btn" id="addBtn" onclick="addTrainee()">＋ 面談した実習生を追加（最大3名）</button>
     </div>
+  </div>
+
+  <!-- B2 在留期限確認 -->
+  <div class="section" id="residenceSection" style="display:none">
+    <div class="sec-title"><span class="icon">🪪</span>在留期限確認</div>
+    <div id="residenceList"></div>
   </div>
 
   <!-- C チェックリスト -->
@@ -275,19 +292,19 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 let DB = {
   companies: [
     { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', contactName:'戸田　貴', contactEmail:'toda@hokkaidobeer.com', trainees:[
-      {name:'LE THI HOAI',       certNo:'認2401004689', grade:'技能実習3号', nationality:'ベトナム', gender:'女', birthDate:'1990年06月02日'},
-      {name:'NONG KHANH THINH',  certNo:'認2401004691', grade:'技能実習3号', nationality:'ベトナム', gender:'男', birthDate:'1997年07月05日'},
-      {name:'TRAN THI DIEU',     certNo:'認2401001594', grade:'技能実習2号', nationality:'ベトナム', gender:'女', birthDate:'1997年06月10日'},
-      {name:'PHAN VAN PHUC',     certNo:'認2501004303', grade:'技能実習2号', nationality:'ベトナム', gender:'男', birthDate:'2001年01月28日'},
-      {name:'HOANG DINH TRONG',  certNo:'認2601000111', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'2005年09月07日'},
-      {name:'TO BACH DO',        certNo:'認2601000112', grade:'技能実習1号', nationality:'ベトナム', gender:'女', birthDate:'2006年07月02日'},
-      {name:'TRAN TRUNG DUC',    certNo:'認2601000113', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'1995年03月11日'}
+      {name:'LE THI HOAI',       certNo:'認2401004689', grade:'技能実習3号', nationality:'ベトナム', gender:'女', birthDate:'1990年06月02日', cardNo:'', residenceExpiry:''},
+      {name:'NONG KHANH THINH',  certNo:'認2401004691', grade:'技能実習3号', nationality:'ベトナム', gender:'男', birthDate:'1997年07月05日', cardNo:'', residenceExpiry:''},
+      {name:'TRAN THI DIEU',     certNo:'認2401001594', grade:'技能実習2号', nationality:'ベトナム', gender:'女', birthDate:'1997年06月10日', cardNo:'', residenceExpiry:''},
+      {name:'PHAN VAN PHUC',     certNo:'認2501004303', grade:'技能実習2号', nationality:'ベトナム', gender:'男', birthDate:'2001年01月28日', cardNo:'', residenceExpiry:''},
+      {name:'HOANG DINH TRONG',  certNo:'認2601000111', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'2005年09月07日', cardNo:'', residenceExpiry:''},
+      {name:'TO BACH DO',        certNo:'認2601000112', grade:'技能実習1号', nationality:'ベトナム', gender:'女', birthDate:'2006年07月02日', cardNo:'', residenceExpiry:''},
+      {name:'TRAN TRUNG DUC',    certNo:'認2601000113', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'1995年03月11日', cardNo:'', residenceExpiry:''}
     ]},
     { id:'kyoei', name:'株式会社協栄', contactName:'大山　弘幸', contactEmail:'h.oyama@kyoei-inc.jp', trainees:[
-      {name:'LE VAN THONG',     certNo:'認2408043253', grade:'技能実習3号', nationality:'ベトナム', gender:'男', birthDate:'1998年08月12日'},
-      {name:'TRAN XUAN TRUONG', certNo:'認2408009462', grade:'技能実習2号', nationality:'ベトナム', gender:'男', birthDate:'2001年06月02日'},
-      {name:'HO MANH CUONG',    certNo:'認2508037651', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'1996年12月06日'},
-      {name:'NGUYEN XUAN TRUNG',certNo:'認2508037652', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'2002年03月22日'}
+      {name:'LE VAN THONG',     certNo:'認2408043253', grade:'技能実習3号', nationality:'ベトナム', gender:'男', birthDate:'1998年08月12日', cardNo:'', residenceExpiry:''},
+      {name:'TRAN XUAN TRUONG', certNo:'認2408009462', grade:'技能実習2号', nationality:'ベトナム', gender:'男', birthDate:'2001年06月02日', cardNo:'', residenceExpiry:''},
+      {name:'HO MANH CUONG',    certNo:'認2508037651', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'1996年12月06日', cardNo:'', residenceExpiry:''},
+      {name:'NGUYEN XUAN TRUNG',certNo:'認2508037652', grade:'技能実習1号', nationality:'ベトナム', gender:'男', birthDate:'2002年03月22日', cardNo:'', residenceExpiry:''}
     ]}
   ],
   staff:[{name:'宮武　薫'},{name:'松島　妙子'}]
@@ -326,6 +343,54 @@ function onCompanyChange() {
   document.getElementById('traineeList').innerHTML = '';
   if (document.getElementById('traineeSection').classList.contains('show') && currentTrainees.length > 0) addTrainee();
   updateAddBtn();
+  renderResidenceList(co);
+}
+
+function renderResidenceList(co) {
+  const sec = document.getElementById('residenceSection');
+  const list = document.getElementById('residenceList');
+  if (!co) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  list.innerHTML = '';
+  co.trainees.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'res-row';
+    let expiryHtml = '';
+    if (t.residenceExpiry) {
+      // "YYYY年MM月DD日" → Date
+      const m = t.residenceExpiry.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      if (m) {
+        const exp = new Date(+m[1], +m[2]-1, +m[3]);
+        const diffMs = exp - today;
+        const diffDays = Math.floor(diffMs / 86400000);
+        const diffMonths = diffDays / 30.44;
+        let badgeHtml = '';
+        if (diffDays < 0) {
+          row.classList.add('warn-red');
+          badgeHtml = '<span class="res-badge red">期限切れ</span>';
+          expiryHtml = `<span class="res-expiry warn-red">${t.residenceExpiry}${badgeHtml}</span>`;
+        } else if (diffMonths < 2) {
+          row.classList.add('warn-red');
+          badgeHtml = '<span class="res-badge red">残り2ヶ月未満</span>';
+          expiryHtml = `<span class="res-expiry warn-red">${t.residenceExpiry}${badgeHtml}</span>`;
+        } else if (diffMonths < 4) {
+          row.classList.add('warn-yellow');
+          badgeHtml = '<span class="res-badge yellow">残り4ヶ月未満</span>';
+          expiryHtml = `<span class="res-expiry warn-yellow">${t.residenceExpiry}${badgeHtml}</span>`;
+        } else {
+          expiryHtml = `<span class="res-expiry">${t.residenceExpiry}</span>`;
+        }
+      } else {
+        expiryHtml = `<span class="res-expiry no-data">日付形式エラー</span>`;
+      }
+    } else {
+      expiryHtml = `<span class="res-expiry no-data">未登録</span>`;
+    }
+    row.innerHTML = `<span class="res-name">${t.name}${t.grade ? ' <span style="font-size:10px;color:#a07080;font-weight:400">（'+t.grade+'）</span>' : ''}</span>${expiryHtml}`;
+    list.appendChild(row);
+  });
 }
 
 // ── 面談あり/なし ──
