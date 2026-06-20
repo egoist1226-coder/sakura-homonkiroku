@@ -190,7 +190,9 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <!-- 総務要望 -->
   <div class="section somu">
     <div class="sec-title"><span class="icon">📋</span>さくら研修機構 総務部からの要望事項<span class="somu-badge">総務記入欄</span></div>
+    <div id="draftBanner" style="display:none;background:#dcfce7;border:1.5px solid #86efac;border-radius:8px;padding:8px 12px;font-size:12px;color:#166534;margin-bottom:8px;font-weight:600">✅ 総務部の下書きを読み込みました</div>
     <textarea id="somuNote" rows="3" style="resize:vertical;font-size:16px;line-height:2" placeholder="【総務部が記入】訪問担当者への指示・確認依頼・特記事項などを記載してください。"></textarea>
+    <button id="draftSaveBtn" onclick="saveDraft()" style="display:none;margin-top:8px;background:#fef9c3;border:1.5px solid #fde047;color:#713f12;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer">💾 下書き保存（総務部用）</button>
   </div>
 
   <!-- D 報告事項 -->
@@ -333,6 +335,53 @@ function onCompanyChange() {
   if (document.getElementById('traineeSection').classList.contains('show') && currentTrainees.length > 0) addTrainee();
   updateAddBtn();
   renderResidenceList(co);
+  // 下書きボタン表示・下書き読み込み
+  document.getElementById('draftSaveBtn').style.display = co ? '' : 'none';
+  document.getElementById('draftBanner').style.display = 'none';
+  document.getElementById('somuNote').value = '';
+  if (co) loadDraft(co.id);
+}
+
+function loadDraft(companyId) {
+  fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent(companyId))
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'ok' && res.draft && res.draft.somuNote) {
+        document.getElementById('somuNote').value = res.draft.somuNote;
+        document.getElementById('draftBanner').style.display = '';
+      }
+    })
+    .catch(() => {});
+}
+
+function saveDraft() {
+  const id = document.getElementById('companySelect').value;
+  const co = DB.companies.find(c => c.id === id);
+  if (!co) return alert('企業を選択してください');
+  const note = document.getElementById('somuNote').value;
+  if (!note.trim()) return alert('要望事項を入力してください');
+  const btn = document.getElementById('draftSaveBtn');
+  btn.textContent = '保存中…';
+  btn.disabled = true;
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ type: 'draft', companyId: co.id, company: co.name, somuNote: note })
+  })
+    .then(r => r.json())
+    .then(res => {
+      btn.textContent = '💾 下書き保存（総務部用）';
+      btn.disabled = false;
+      if (res.status === 'ok') {
+        showToast('下書きを保存しました');
+      } else {
+        alert('保存に失敗しました: ' + (res.message || ''));
+      }
+    })
+    .catch(() => {
+      btn.textContent = '💾 下書き保存（総務部用）';
+      btn.disabled = false;
+      alert('通信エラーが発生しました');
+    });
 }
 
 function renderResidenceList(co) {

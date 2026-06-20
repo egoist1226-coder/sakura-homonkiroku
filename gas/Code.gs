@@ -12,6 +12,17 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
+    // ── 下書き保存 ──
+    if (data.type === 'draft') {
+      var drafts = getDraftsFolder();
+      var draftName = '下書き_' + data.companyId + '.json';
+      var existing = drafts.getFilesByName(draftName);
+      if (existing.hasNext()) existing.next().setTrashed(true);
+      var blob = Utilities.newBlob(JSON.stringify(data, null, 2), 'application/json', draftName);
+      drafts.createFile(blob);
+      return buildResponse({ status: 'ok', message: '下書きを保存しました' });
+    }
+
     // ── Google Drive 保存 ──
     var root    = getOrCreateFolder(ROOT_FOLDER_NAME, DriveApp.getRootFolder());
     var company = getOrCreateFolder(data.company || '未設定企業', root);
@@ -25,6 +36,15 @@ function doPost(e) {
 
     var blob = Utilities.newBlob(JSON.stringify(data, null, 2), 'application/json', fileName);
     var file = ym.createFile(blob);
+
+    // 下書き削除
+    if (data.companyId) {
+      try {
+        var drafts2 = getDraftsFolder();
+        var draftFiles = drafts2.getFilesByName('下書き_' + data.companyId + '.json');
+        if (draftFiles.hasNext()) draftFiles.next().setTrashed(true);
+      } catch(de) {}
+    }
 
     // ── メール送信 ──
     var mailResult = '';
@@ -69,7 +89,31 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  var action = e.parameter.action;
+
+  // 下書き取得
+  if (action === 'getDraft') {
+    var companyId = e.parameter.companyId;
+    try {
+      var drafts = getDraftsFolder();
+      var files = drafts.getFilesByName('下書き_' + companyId + '.json');
+      if (files.hasNext()) {
+        var content = files.next().getBlob().getDataAsString();
+        return buildResponse({ status: 'ok', draft: JSON.parse(content) });
+      } else {
+        return buildResponse({ status: 'not_found' });
+      }
+    } catch(err) {
+      return buildResponse({ status: 'error', message: err.toString() });
+    }
+  }
+
   return buildResponse({ status: 'ok', message: 'さくら研修機構 訪問記録APIは正常に動作しています' });
+}
+
+function getDraftsFolder() {
+  var root = getOrCreateFolder(ROOT_FOLDER_NAME, DriveApp.getRootFolder());
+  return getOrCreateFolder('下書き', root);
 }
 
 function getOrCreateFolder(name, parent) {
