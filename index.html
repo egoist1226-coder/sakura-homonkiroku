@@ -225,7 +225,15 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     </div>
   </div>
 
-  <!-- F 署名 -->
+  <!-- F 現場写真 -->
+  <div class="section photo-section">
+    <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
+    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
+    <div class="photo-thumbnails" id="photoThumbnails"></div>
+  </div>
+
+  <!-- G 署名 -->
   <div class="section">
     <div class="sec-title"><span class="icon">🌸</span>受入企業担当者　署名（訪問証明）</div>
     <div class="sign-split">
@@ -245,14 +253,6 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
         <div class="timestamp-auto" id="timestamp">🕐 署名時刻：（サインすると自動記録）</div>
       </div>
     </div>
-  </div>
-
-  <!-- G 現場写真 -->
-  <div class="section photo-section">
-    <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
-    <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
-    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
-    <div class="photo-thumbnails" id="photoThumbnails"></div>
   </div>
 
   <!-- ライトボックス -->
