@@ -199,6 +199,14 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     </div>
   </div>
 
+  <!-- F 現場写真 -->
+  <div class="section photo-section">
+    <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
+    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
+    <div class="photo-thumbnails" id="photoThumbnails"></div>
+  </div>
+
   <!-- 次回訪問 -->
   <div class="section nextvisit">
     <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span></div>
@@ -223,14 +231,6 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
       </div>
       <div class="warn-msg show" id="nextVisitWarn">⚠ 次回訪問予定日時を入力しないと署名・保存できません</div>
     </div>
-  </div>
-
-  <!-- F 現場写真 -->
-  <div class="section photo-section">
-    <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
-    <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
-    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
-    <div class="photo-thumbnails" id="photoThumbnails"></div>
   </div>
 
   <!-- G 署名 -->
