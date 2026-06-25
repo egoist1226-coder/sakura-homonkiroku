@@ -2,7 +2,7 @@
  * さくら研修機構 訪問指導記録票 - Google Drive 保存 + PDF生成 + メール送信
  */
 
-var ROOT_FOLDER_ID = '1oVN_dV3qRh-6FPnxfAICxMDa4SZRfvkH'; // 訪問指導記録表（共有フォルダ）
+var ROOT_FOLDER_ID = '1GjarIC37LEN-kcRoxBiV3MELg1dWlrt-'; // さくら研修機構_訪問記録（egoist1226所有・共有フォルダ）
 
 function doOptions(e) {
   return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
