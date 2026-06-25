@@ -70,6 +70,7 @@ function doPost(e) {
 
         MailApp.sendEmail({
           to: data.contactEmail,
+          bcc: 'miyatake@sakura-training.jp',
           subject: subject,
           body: body
         });

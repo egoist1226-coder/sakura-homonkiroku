@@ -273,7 +273,10 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     <div class="submit-warn" id="submitWarn">⚠ 次回訪問予定日時の入力が必要です</div>
     <button class="btn-pdf" style="background:white;color:#999;border:1.5px solid #ddd;font-size:11px;padding:6px 12px" onclick="hardRefresh()">🔄 アプリ更新</button>
     <button class="btn-pdf disabled" id="btnPdf" onclick="exportPdf()">PDF出力</button>
-    <button class="btn-save disabled" id="btnSave" onclick="saveRecord()">保存と企業様へ送信</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <button class="btn-save disabled" id="btnSave" onclick="saveRecord()">保存と企業様へ送信</button>
+      <div id="contactInfo" style="font-size:10px;color:#a07080;text-align:right;display:none"></div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -344,6 +347,10 @@ function onCompanyChange() {
   if (document.getElementById('traineeSection').classList.contains('show') && currentTrainees.length > 0) addTrainee();
   updateAddBtn();
   renderResidenceList(co);
+  // 宛先表示
+  const ci = document.getElementById('contactInfo');
+  if (co) { ci.style.display = ''; ci.textContent = '宛先：' + co.contactName + ' 様　' + co.contactEmail; }
+  else { ci.style.display = 'none'; ci.textContent = ''; }
   // 下書きボタン表示・下書き読み込み
   document.getElementById('draftSaveBtn').style.display = co ? '' : 'none';
   document.getElementById('draftBanner').style.display = 'none';
