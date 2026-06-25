@@ -131,17 +131,15 @@ function createCalendarEvent(data) {
     '【担当者】' + (data.staff || '') + '\n' +
     '【連絡先】' + (data.contactName || '') + '　' + (data.contactEmail || '');
 
-  // 担当者のカレンダーに直接登録
-  var calendar = staffEmail
-    ? CalendarApp.getCalendarById(staffEmail)
-    : CalendarApp.getDefaultCalendar();
-  if (!calendar) calendar = CalendarApp.getDefaultCalendar();
+  // 宮武薫のみカレンダー登録（共有済みのため直接登録可）
+  if (data.staff === '宮武　薫' && staffEmail) {
+    var cal = CalendarApp.getCalendarById(staffEmail);
+    if (!cal) cal = CalendarApp.getDefaultCalendar();
+    cal.createEvent(title, startDate, endDate, { description: description });
+    return 'created on miyatake calendar';
+  }
 
-  calendar.createEvent(title, startDate, endDate, {
-    description: description
-  });
-
-  return 'created: ' + (staffEmail || 'default');
+  return 'skipped (not applicable)';
 }
 
 // ── PDF生成（Google Docを一時作成してPDF化） ──
