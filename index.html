@@ -207,7 +207,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <!-- E 総合所見 -->
   <div class="section">
     <div class="sec-title"><span class="icon">🌸</span>訪問担当者の総合所見</div>
-    <textarea id="sokenText" rows="10" style="resize:vertical;font-size:16px;line-height:2" placeholder="総合所見を記載してください。（Apple Pencilでの手書き入力・テキスト入力どちらも可）"></textarea>
+    <textarea id="sokenText" rows="3" style="resize:none;font-size:16px;line-height:2;overflow:hidden" placeholder="総合所見を記載してください。（Apple Pencilでの手書き入力・テキスト入力どちらも可）" oninput="autoResize(this)"></textarea>
   </div>
 
   <!-- F 現場写真 -->
