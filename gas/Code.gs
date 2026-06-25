@@ -2,7 +2,7 @@
  * さくら研修機構 訪問指導記録票 - Google Drive 保存 + メール送信スクリプト
  */
 
-var ROOT_FOLDER_NAME = 'さくら研修機構_訪問記録';
+var ROOT_FOLDER_ID = '1oVN_dV3qRh-6FPnxfAICxMDa4SZRfvkH'; // 訪問指導記録表（共有フォルダ）
 
 function doOptions(e) {
   return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
@@ -24,7 +24,7 @@ function doPost(e) {
     }
 
     // ── Google Drive 保存 ──
-    var root    = getOrCreateFolder(ROOT_FOLDER_NAME, DriveApp.getRootFolder());
+    var root    = DriveApp.getFolderById(ROOT_FOLDER_ID);
     var company = getOrCreateFolder(data.company || '未設定企業', root);
     var ym      = getOrCreateFolder(getYearMonth(data.savedAt), company);
 
@@ -113,7 +113,7 @@ function doGet(e) {
 }
 
 function getDraftsFolder() {
-  var root = getOrCreateFolder(ROOT_FOLDER_NAME, DriveApp.getRootFolder());
+  var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
   return getOrCreateFolder('下書き', root);
 }
 
