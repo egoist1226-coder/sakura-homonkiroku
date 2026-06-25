@@ -200,8 +200,8 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 
   <!-- D 報告事項 -->
   <div class="section">
-    <div class="sec-title"><span class="icon">🌸</span>技能実習責任者・実習指導員等からの報告事項等</div>
-    <textarea id="reportNote" rows="10" style="resize:vertical;font-size:16px;line-height:2" placeholder="報告を受けた内容、確認事項、申し送り事項などを記載してください。"></textarea>
+    <div class="sec-title"><span class="icon">🌸</span>受入企業さま責任者・指導者からのご報告事項</div>
+    <textarea id="reportNote" rows="3" style="resize:none;font-size:16px;line-height:2;overflow:hidden" placeholder="報告を受けた内容、確認事項、申し送り事項などを記載してください。" oninput="autoResize(this)"></textarea>
   </div>
 
   <!-- E 総合所見 -->
@@ -582,6 +582,12 @@ function clearCanvas(id) {
 }
 
 function toggleAcc(cb) { document.getElementById('accDetail').classList.toggle('show', cb.checked); }
+
+// ── テキストエリア自動リサイズ ──
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
 
 // ── トースト通知 ──
 function showToast(msg) {
