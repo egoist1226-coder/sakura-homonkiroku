@@ -84,11 +84,60 @@ function doPost(e) {
       mailResult = 'skipped (no email)';
     }
 
-    return buildResponse({ status: 'ok', fileId: pdfFile.getId(), fileName: pdfName, mail: mailResult });
+    // ── カレンダー登録 ──
+    var calResult = '';
+    try {
+      calResult = createCalendarEvent(data);
+    } catch(calErr) {
+      calResult = 'error: ' + calErr.toString();
+    }
+
+    return buildResponse({ status: 'ok', fileId: pdfFile.getId(), fileName: pdfName, mail: mailResult, calendar: calResult });
 
   } catch (err) {
     return buildResponse({ status: 'error', message: err.toString() });
   }
+}
+
+// ── カレンダー予定登録 ──
+function createCalendarEvent(data) {
+  var nextVisit = data.nextVisit ? data.nextVisit.trim() : '';
+  if (!nextVisit || nextVisit.replace(/\s/g,'') === '') return 'skipped (no date)';
+
+  // "2026-07-15 10:00" 形式をパース
+  var parts = nextVisit.split(' ');
+  var dateParts = parts[0].split('-');
+  var timeParts = (parts[1] || '10:00').split(':');
+
+  var startDate = new Date(
+    parseInt(dateParts[0]),
+    parseInt(dateParts[1]) - 1,
+    parseInt(dateParts[2]),
+    parseInt(timeParts[0]),
+    parseInt(timeParts[1])
+  );
+  var endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1時間
+
+  // スタッフ名→メールアドレス対応表
+  var staffEmailMap = {
+    '宮武　薫':   'miyatake@sakura-training.jp',
+    '松島　妙子': 'matsushima@sakura-training.jp'
+  };
+
+  var staffEmail = staffEmailMap[data.staff] || '';
+  var title = '訪問指導：' + (data.company || '');
+  var description =
+    '【訪問先】' + (data.company || '') + '\n' +
+    '【担当者】' + (data.staff || '') + '\n' +
+    '【連絡先】' + (data.contactName || '') + '　' + (data.contactEmail || '');
+
+  CalendarApp.getDefaultCalendar().createEvent(title, startDate, endDate, {
+    description: description,
+    guests: staffEmail,
+    sendInvites: true
+  });
+
+  return 'created';
 }
 
 // ── PDF生成（Google Docを一時作成してPDF化） ──
