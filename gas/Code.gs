@@ -131,13 +131,17 @@ function createCalendarEvent(data) {
     '【担当者】' + (data.staff || '') + '\n' +
     '【連絡先】' + (data.contactName || '') + '　' + (data.contactEmail || '');
 
-  CalendarApp.getDefaultCalendar().createEvent(title, startDate, endDate, {
-    description: description,
-    guests: staffEmail,
-    sendInvites: true
+  // 担当者のカレンダーに直接登録
+  var calendar = staffEmail
+    ? CalendarApp.getCalendarById(staffEmail)
+    : CalendarApp.getDefaultCalendar();
+  if (!calendar) calendar = CalendarApp.getDefaultCalendar();
+
+  calendar.createEvent(title, startDate, endDate, {
+    description: description
   });
 
-  return 'created';
+  return 'created: ' + (staffEmail || 'default');
 }
 
 // ── PDF生成（Google Docを一時作成してPDF化） ──
