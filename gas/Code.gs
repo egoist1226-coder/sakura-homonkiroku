@@ -29,7 +29,7 @@ function doPost(e) {
     var ym      = getOrCreateFolder(getYearMonth(data.savedAt), company);
 
     var dateStr  = (data.savedAt || new Date().toISOString()).slice(0, 10);
-    var baseName = (data.company || '未設定') + '_' + dateStr;
+    var baseName = (data.company || '未設定') + 'さま_' + dateStr;
 
     // ── PDF生成・保存 ──
     var pdfBlob = createVisitPdf(data);
