@@ -650,7 +650,10 @@ function saveRecord() {
     contactEmail: selectedCompany?.contactEmail || '',
     staff: document.getElementById('staffSelect').value,
     interviewMode: document.getElementById('traineeSection').classList.contains('show') ? 'あり' : 'なし',
-    trainees: rows.map(r => ({ name: r.select.value, certNo: r.autoDiv.textContent })),
+    trainees: rows.map(r => {
+      const t = currentTrainees.find(x => x.name === r.select.value) || {};
+      return { name: r.select.value, certNo: r.autoDiv.textContent, grade: t.grade||'', nationality: t.nationality||'', gender: t.gender||'', birthDate: t.birthDate||'', interviewItems: r.items||[], otherText: r.otherText||'' };
+    }),
     checklist: Array.from(document.querySelectorAll('.check-grid input[type=checkbox]')).map(cb => ({
       label: cb.closest('label')?.querySelector('span')?.textContent || '',
       checked: cb.checked

@@ -72,6 +72,8 @@ function doPost(e) {
         MailApp.sendEmail({
           to: data.contactEmail,
           bcc: 'miyatake@sakura-training.jp',
+          name: 'さくら研修機構総務部',
+          replyTo: 'office@sakura-training.jp',
           subject: subject,
           body: body,
           attachments: [pdfBlob]
@@ -168,7 +170,7 @@ function createVisitPdf(data) {
   addSectionTitle(body, '■ 基本情報');
   body.appendTable([
     ['訪問日時',     visitDate],
-    ['企業名',       data.company || ''],
+    ['企業名',       (data.company || '') + 'さま'],
     ['訪問担当者',   data.staff || ''],
     ['次回訪問予定', nextVisit]
   ]);
