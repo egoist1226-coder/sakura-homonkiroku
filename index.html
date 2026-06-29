@@ -164,7 +164,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     <div class="no-interview-banner show" id="noBanner"><span style="font-size:20px">📋</span><span>今回の訪問では実習生との面談なし（書類確認・施設確認のみ）</span></div>
     <div class="trainee-section" id="traineeSection">
       <div class="trainee-list" id="traineeList"></div>
-      <button class="add-btn" id="addBtn" onclick="addTrainee()">＋ 面談した実習生を追加（最大3名）</button>
+      <button class="add-btn" id="addBtn" onclick="addTrainee()">＋ 面談した実習生を追加（最大5名）</button>
     </div>
   </div>
 
@@ -318,7 +318,7 @@ let DB = {
 let currentTrainees = [];
 let rows = [];
 let signEnabled = false;
-const MAX = 3;
+const MAX = 5;
 const DAYS = ['（日）','（月）','（火）','（水）','（木）','（金）','（土）'];
 
 function populateSelects() {
