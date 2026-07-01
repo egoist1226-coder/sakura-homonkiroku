@@ -207,7 +207,9 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <!-- E 総合所見 -->
   <div class="section">
     <div class="sec-title"><span class="icon">🌸</span>訪問担当者の総合所見</div>
+    <div id="staffDraftBanner" style="display:none;background:#dcfce7;border:1.5px solid #86efac;border-radius:8px;padding:8px 12px;font-size:12px;color:#166534;margin-bottom:8px;font-weight:600">✅ 訪問担当者の下書きを読み込みました</div>
     <textarea id="sokenText" rows="3" style="resize:none;font-size:16px;line-height:2;overflow:hidden" placeholder="総合所見を記載してください。（Apple Pencilでの手書き入力・テキスト入力どちらも可）" oninput="autoResize(this)"></textarea>
+    <button id="staffDraftSaveBtn" onclick="saveStaffDraft()" disabled style="margin-top:8px;background:#f3f4f6;border:1.5px solid #d1d5db;color:#9ca3af;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:not-allowed">💾 下書き保存（訪問担当者用）</button>
   </div>
 
   <!-- F 現場写真 -->
@@ -365,10 +367,32 @@ function onCompanyChange() {
   }
   document.getElementById('draftBanner').style.display = 'none';
   document.getElementById('somuNote').value = '';
+  document.getElementById('staffDraftBanner').style.display = 'none';
+  document.getElementById('sokenText').value = '';
+  const sdsb = document.getElementById('staffDraftSaveBtn');
+  if (co) {
+    sdsb.disabled = false;
+    sdsb.style.cssText = 'margin-top:8px;background:#fef9c3;border:1.5px solid #fde047;color:#713f12;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer';
+  } else {
+    sdsb.disabled = true;
+    sdsb.style.cssText = 'margin-top:8px;background:#f3f4f6;border:1.5px solid #d1d5db;color:#9ca3af;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:not-allowed';
+  }
   if (co) loadDraft(co.id);
 }
 
 function loadDraft(companyId) {
+  // 訪問担当者用下書き読み込み
+  fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent('staff_' + companyId))
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'ok' && res.draft && res.draft.sokenText) {
+        document.getElementById('sokenText').value = res.draft.sokenText;
+        autoResize(document.getElementById('sokenText'));
+        document.getElementById('staffDraftBanner').style.display = '';
+      }
+    })
+    .catch(() => {});
+  // 総務部用下書き読み込み
   fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent(companyId))
     .then(r => r.json())
     .then(res => {
@@ -378,6 +402,33 @@ function loadDraft(companyId) {
       }
     })
     .catch(() => {});
+}
+
+function saveStaffDraft() {
+  const id = document.getElementById('companySelect').value;
+  const co = DB.companies.find(c => c.id === id);
+  if (!co) return alert('企業を選択してください');
+  const note = document.getElementById('sokenText').value;
+  if (!note.trim()) return alert('総合所見を入力してください');
+  const btn = document.getElementById('staffDraftSaveBtn');
+  btn.textContent = '保存中…';
+  btn.disabled = true;
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ type: 'draft_staff', companyId: co.id, company: co.name, sokenText: note })
+  })
+    .then(r => r.json())
+    .then(res => {
+      btn.textContent = '💾 下書き保存（訪問担当者用）';
+      btn.disabled = false;
+      if (res.status === 'ok') { showToast('下書きを保存しました'); }
+      else { alert('保存に失敗しました: ' + (res.message || '')); }
+    })
+    .catch(() => {
+      btn.textContent = '💾 下書き保存（訪問担当者用）';
+      btn.disabled = false;
+      alert('通信エラーが発生しました');
+    });
 }
 
 function saveDraft() {

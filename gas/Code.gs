@@ -12,10 +12,11 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
-    // ── 下書き保存 ──
-    if (data.type === 'draft') {
+    // ── 下書き保存（総務部用 / 訪問担当者用） ──
+    if (data.type === 'draft' || data.type === 'draft_staff') {
       var drafts = getDraftsFolder();
-      var draftName = '下書き_' + data.companyId + '.json';
+      var draftKey = data.type === 'draft_staff' ? 'staff_' + data.companyId : data.companyId;
+      var draftName = '下書き_' + draftKey + '.json';
       var existing = drafts.getFilesByName(draftName);
       if (existing.hasNext()) existing.next().setTrashed(true);
       var blob = Utilities.newBlob(JSON.stringify(data, null, 2), 'application/json', draftName);
