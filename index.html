@@ -385,9 +385,9 @@ function loadDraft(companyId) {
   fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent('staff_' + companyId))
     .then(r => r.json())
     .then(res => {
-      if (res.status === 'ok' && res.draft && res.draft.sokenText) {
-        document.getElementById('sokenText').value = res.draft.sokenText;
-        autoResize(document.getElementById('sokenText'));
+      if (res.status === 'ok' && res.draft && (res.draft.sokenText || res.draft.reportNote)) {
+        if (res.draft.reportNote) { document.getElementById('reportNote').value = res.draft.reportNote; autoResize(document.getElementById('reportNote')); }
+        if (res.draft.sokenText) { document.getElementById('sokenText').value = res.draft.sokenText; autoResize(document.getElementById('sokenText')); }
         document.getElementById('staffDraftBanner').style.display = '';
       }
     })
@@ -415,7 +415,7 @@ function saveStaffDraft() {
   btn.disabled = true;
   fetch(GAS_URL, {
     method: 'POST',
-    body: JSON.stringify({ type: 'draft_staff', companyId: co.id, company: co.name, sokenText: note })
+    body: JSON.stringify({ type: 'draft_staff', companyId: co.id, company: co.name, reportNote: document.getElementById('reportNote').value, sokenText: note })
   })
     .then(r => r.json())
     .then(res => {
