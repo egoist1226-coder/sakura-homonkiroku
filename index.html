@@ -107,6 +107,21 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 .photo-lightbox.show{display:flex}
 .photo-lightbox img{max-width:92vw;max-height:80vh;border-radius:10px;object-fit:contain}
 .photo-lightbox-close{color:white;font-size:14px;font-weight:600;background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:8px 24px;cursor:pointer}
+.pdf-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:flex-start;justify-content:center;padding-top:60px}
+.pdf-modal-overlay.show{display:flex}
+.pdf-modal{background:white;border-radius:14px;width:92vw;max-width:480px;max-height:70vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.pdf-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1.5px solid #fad5e0;flex-shrink:0}
+.pdf-modal-head h3{margin:0;font-size:14px;color:#c06080;font-weight:700}
+.pdf-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#999;line-height:1;padding:0 4px}
+.pdf-modal-body{overflow-y:auto;flex:1;padding:10px 12px}
+.pdf-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid #fad5e0;margin-bottom:8px;text-decoration:none;color:#4a2030;background:#fffbfc}
+.pdf-item:active{background:#fdf0f3}
+.pdf-item-icon{font-size:22px;flex-shrink:0}
+.pdf-item-info{flex:1;min-width:0}
+.pdf-item-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pdf-item-date{font-size:11px;color:#a07080;margin-top:2px}
+.pdf-modal-empty{text-align:center;color:#a0aec0;font-size:13px;padding:30px 0}
+.btn-past-pdf{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;border:1.5px solid #c06080;background:white;color:#c06080;cursor:pointer;margin-left:auto;white-space:nowrap;flex-shrink:0}
 .res-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-radius:8px;margin-bottom:6px;background:#fffbfc;border:1.5px solid #fac8d8}
 .res-row.warn-yellow{background:#fefce8;border-color:#fde047}
 .res-row.warn-red{background:#fef2f2;border-color:#fca5a5}
@@ -225,7 +240,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 
   <!-- 次回訪問 -->
   <div class="section nextvisit">
-    <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span></div>
+    <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span><button class="btn-past-pdf" onclick="openPdfList()">📂 過去の記録を参照</button></div>
     <div class="field">
       <div class="next-visit-group">
         <input type="date" id="nextDate" class="empty" style="width:150px;min-width:150px;max-width:150px;flex:0 0 150px">
@@ -275,6 +290,19 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
     <img id="lightboxImg" src="" alt="">
     <button class="photo-lightbox-close" onclick="closeLightbox()">閉じる</button>
+  </div>
+
+  <!-- 過去PDF参照モーダル -->
+  <div class="pdf-modal-overlay" id="pdfModalOverlay" onclick="if(event.target===this)closePdfModal()">
+    <div class="pdf-modal">
+      <div class="pdf-modal-head">
+        <h3>📂 過去の訪問指導記録PDF</h3>
+        <button class="pdf-modal-close" onclick="closePdfModal()">✕</button>
+      </div>
+      <div class="pdf-modal-body" id="pdfModalBody">
+        <div class="pdf-modal-empty">読み込み中…</div>
+      </div>
+    </div>
   </div>
 
   <div class="submit-bar">
@@ -711,6 +739,42 @@ function closeLightbox() {
   document.getElementById('photoLightbox').classList.remove('show');
 }
 
+// ── 過去PDF参照 ──
+function openPdfList() {
+  const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
+  if (!selectedCompany) { alert('企業を選択してください'); return; }
+  const overlay = document.getElementById('pdfModalOverlay');
+  const body = document.getElementById('pdfModalBody');
+  body.innerHTML = '<div class="pdf-modal-empty">読み込み中…</div>';
+  overlay.classList.add('show');
+  fetch(GAS_URL + '?action=listPdfs&companyName=' + encodeURIComponent(selectedCompany.name))
+    .then(r => r.json())
+    .then(data => {
+      if (!data.files || data.files.length === 0) {
+        body.innerHTML = '<div class="pdf-modal-empty">保存済みのPDFはありません</div>';
+        return;
+      }
+      body.innerHTML = data.files.map(f => {
+        const d = new Date(f.date);
+        const dateStr = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+        return `<a class="pdf-item" href="https://drive.google.com/file/d/${f.id}/view" target="_blank">
+          <span class="pdf-item-icon">📄</span>
+          <div class="pdf-item-info">
+            <div class="pdf-item-name">${f.name}</div>
+            <div class="pdf-item-date">${dateStr}</div>
+          </div>
+        </a>`;
+      }).join('');
+    })
+    .catch(() => {
+      body.innerHTML = '<div class="pdf-modal-empty">読み込みに失敗しました</div>';
+    });
+}
+
+function closePdfModal() {
+  document.getElementById('pdfModalOverlay').classList.remove('show');
+}
+
 // ── Google Drive 保存 ──
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0fkAbaY44RZqZrqFRqQivoxkmmwkiuf96gEz1l--VUb0_vuHrGto3n6KLJQLVz899/exec';
 
@@ -755,6 +819,11 @@ function saveRecord() {
     showToast('✅ Google Driveに保存しました');
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
+    document.getElementById('somuNote').value = '';
+    document.getElementById('reportNote').value = '';
+    const soken = document.getElementById('sokenText');
+    soken.value = '';
+    autoResize(soken);
   })
   .catch(() => {
     showToast('⚠ 保存に失敗しました（オフライン？）');

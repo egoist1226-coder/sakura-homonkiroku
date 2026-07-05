@@ -278,6 +278,30 @@ function doGet(e) {
     }
   }
 
+  if (action === 'listPdfs') {
+    var companyName = e.parameter.companyName;
+    try {
+      var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+      var companyFolders = root.getFoldersByName(companyName);
+      if (!companyFolders.hasNext()) return buildResponse({ status: 'ok', files: [] });
+      var companyFolder = companyFolders.next();
+      var result = [];
+      var ymFolders = companyFolder.getFolders();
+      while (ymFolders.hasNext()) {
+        var ymFolder = ymFolders.next();
+        var pdfs = ymFolder.getFilesByType('application/pdf');
+        while (pdfs.hasNext()) {
+          var f = pdfs.next();
+          result.push({ id: f.getId(), name: f.getName(), date: f.getDateCreated().toISOString() });
+        }
+      }
+      result.sort(function(a, b) { return b.date.localeCompare(a.date); });
+      return buildResponse({ status: 'ok', files: result });
+    } catch(err) {
+      return buildResponse({ status: 'error', message: err.toString() });
+    }
+  }
+
   return buildResponse({ status: 'ok', message: 'さくら研修機構 訪問記録APIは正常に動作しています' });
 }
 
