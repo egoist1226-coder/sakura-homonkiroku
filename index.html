@@ -240,7 +240,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 
   <!-- 次回訪問 -->
   <div class="section nextvisit">
-    <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span><button class="btn-past-pdf" onclick="openPdfList()">📂 過去の記録を参照</button></div>
+    <div class="sec-title"><span class="icon">📅</span>次回訪問予定日時<span style="font-size:12px;color:#dc2626;margin-left:4px;font-weight:700">★必須</span></div>
     <div class="field">
       <div class="next-visit-group">
         <input type="date" id="nextDate" class="empty" style="width:150px;min-width:150px;max-width:150px;flex:0 0 150px">
@@ -259,6 +259,7 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
           <option value="17:00">17:00</option><option value="17:30">17:30</option>
           <option value="18:00">18:00</option>
         </select>
+        <button class="btn-past-pdf" onclick="openPdfList()">📂 過去の記録</button>
       </div>
       <div class="warn-msg show" id="nextVisitWarn">⚠ 次回訪問予定日時を入力しないと署名・保存できません</div>
     </div>
@@ -418,7 +419,10 @@ function onCompanyChange() {
   document.getElementById('draftBanner').style.display = 'none';
   document.getElementById('somuNote').value = '';
   document.getElementById('staffDraftBanner').style.display = 'none';
+  document.getElementById('reportNote').value = '';
+  autoResize(document.getElementById('reportNote'));
   document.getElementById('sokenText').value = '';
+  autoResize(document.getElementById('sokenText'));
   const sdsb = document.getElementById('staffDraftSaveBtn');
   if (co) {
     sdsb.disabled = false;
@@ -779,11 +783,12 @@ function closePdfModal() {
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0fkAbaY44RZqZrqFRqQivoxkmmwkiuf96gEz1l--VUb0_vuHrGto3n6KLJQLVz899/exec';
 
 function saveRecord() {
+  const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
+  if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先：${selectedCompany?.contactEmail || '（メールなし）'}\n\nこの内容で保存・送信してよろしいですか？`)) return;
+
   const btn = document.getElementById('btnSave');
   btn.textContent = '送信中…';
   btn.classList.add('disabled');
-
-  const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
   const record = {
     savedAt: new Date().toISOString(),
     company: selectedCompany?.name || '',
