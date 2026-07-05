@@ -14,7 +14,9 @@
           "gender": "女",
           "birthDate": "1990年06月02日",
           "cardNo": "LI03218414EA",
-          "residenceExpiry": "2027年01月28日"
+          "residenceExpiry": "2027年01月28日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "NONG KHANH THINH",
@@ -24,7 +26,9 @@
           "gender": "男",
           "birthDate": "1997年07月05日",
           "cardNo": "LJ03218406EA",
-          "residenceExpiry": "2027年01月28日"
+          "residenceExpiry": "2027年01月28日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TRAN THI DIEU",
@@ -34,7 +38,9 @@
           "gender": "女",
           "birthDate": "1997年06月10日",
           "cardNo": "UH40401271EA",
-          "residenceExpiry": "2026年08月15日"
+          "residenceExpiry": "2026年08月15日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "PHAN VAN PHUC",
@@ -44,7 +50,9 @@
           "gender": "男",
           "birthDate": "2001年01月28日",
           "cardNo": "UH65367231EA",
-          "residenceExpiry": "2026年12月09日"
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HOANG DINH TRONG",
@@ -54,7 +62,9 @@
           "gender": "男",
           "birthDate": "2005年09月07日",
           "cardNo": "LJ18511428FA",
-          "residenceExpiry": "2027年06月01日"
+          "residenceExpiry": "2027年06月01日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TO BACH DO",
@@ -64,7 +74,9 @@
           "gender": "男",
           "birthDate": "2006年07月02日",
           "cardNo": "LJ18520412FA",
-          "residenceExpiry": "2027年06月01日"
+          "residenceExpiry": "2027年06月01日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TRAN TRUNG DUC",
@@ -74,7 +86,9 @@
           "gender": "男",
           "birthDate": "1995年03月11日",
           "cardNo": "LJ18520404FA",
-          "residenceExpiry": "2027年06月01日"
+          "residenceExpiry": "2027年06月01日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -92,7 +106,9 @@
           "gender": "男",
           "birthDate": "1998年08月12日",
           "cardNo": "UH09986719EA",
-          "residenceExpiry": "2026年07月28日"
+          "residenceExpiry": "2026年07月28日",
+          "applicationDate": "7月5日",
+          "applicationType": "更新申請"
         },
         {
           "name": "TRAN XUAN TRUONG",
@@ -102,7 +118,9 @@
           "gender": "男",
           "birthDate": "2001年06月02日",
           "cardNo": "UH20369292EA",
-          "residenceExpiry": "2026年08月23日"
+          "residenceExpiry": "2026年08月23日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HO MANH CUONG",
@@ -112,7 +130,9 @@
           "gender": "男",
           "birthDate": "1996年12月06日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "NGUYEN XUAN TRUNG",
@@ -122,7 +142,9 @@
           "gender": "男",
           "birthDate": "2002年03月22日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HO NGOC TRINH",
@@ -132,7 +154,9 @@
           "gender": "男",
           "birthDate": "1996年03月14日",
           "cardNo": "UH23950355EA",
-          "residenceExpiry": "2026年07月09日"
+          "residenceExpiry": "2026年07月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TA VAN THANG",
@@ -142,7 +166,9 @@
           "gender": "男",
           "birthDate": "1998年01月06日",
           "cardNo": "UH78912285EA",
-          "residenceExpiry": "2026年07月09日"
+          "residenceExpiry": "2026年07月09日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -160,7 +186,9 @@
           "gender": "女",
           "birthDate": "1996年04月27日",
           "cardNo": "LJ23020725SA",
-          "residenceExpiry": "2027年06月26日"
+          "residenceExpiry": "2027年06月26日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -178,7 +206,9 @@
           "gender": "男",
           "birthDate": "1995年03月13日",
           "cardNo": "LJ09578123SA",
-          "residenceExpiry": "2027年04月25日"
+          "residenceExpiry": "2027年04月25日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "DEDE ILMAN",
@@ -188,7 +218,9 @@
           "gender": "男",
           "birthDate": "1991年11月27日",
           "cardNo": "UH15102125SB",
-          "residenceExpiry": "2026年11月26日"
+          "residenceExpiry": "2026年11月26日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "IRSYAL ADHITIA UTAMA",
@@ -198,7 +230,9 @@
           "gender": "男",
           "birthDate": "1996年01月15日",
           "cardNo": "UH41126943SA",
-          "residenceExpiry": "2026年09月27日"
+          "residenceExpiry": "2026年09月27日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "FADLI RIYADI",
@@ -208,7 +242,9 @@
           "gender": "男",
           "birthDate": "1996年03月09日",
           "cardNo": "UH11106948SA",
-          "residenceExpiry": "2026年08月22日"
+          "residenceExpiry": "2026年08月22日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -226,7 +262,9 @@
           "gender": "男",
           "birthDate": "1998年09月14日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TRUONG MINH TUAN",
@@ -236,7 +274,9 @@
           "gender": "男",
           "birthDate": "2005年07月08日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -254,7 +294,9 @@
           "gender": "女",
           "birthDate": "1999年07月20日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -272,7 +314,9 @@
           "gender": "男",
           "birthDate": "1999年03月17日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -290,7 +334,9 @@
           "gender": "女",
           "birthDate": "1997年04月18日",
           "cardNo": "",
-          "residenceExpiry": ""
+          "residenceExpiry": "",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -308,7 +354,9 @@
           "gender": "男",
           "birthDate": "1994年07月19日",
           "cardNo": "UH82697803EA",
-          "residenceExpiry": "2026年07月10日"
+          "residenceExpiry": "2026年07月10日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "MOKBUL",
@@ -318,7 +366,9 @@
           "gender": "男",
           "birthDate": "1988年02月02日",
           "cardNo": "UH26627608EA",
-          "residenceExpiry": "2026年07月10日"
+          "residenceExpiry": "2026年07月10日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     }
