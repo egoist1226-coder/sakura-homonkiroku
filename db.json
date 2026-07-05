@@ -155,8 +155,8 @@
           "birthDate": "1996年03月14日",
           "cardNo": "UH23950355EA",
           "residenceExpiry": "2026年07月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月4日",
+          "applicationType": "更新申請"
         },
         {
           "name": "TA VAN THANG",
@@ -167,8 +167,8 @@
           "birthDate": "1998年01月06日",
           "cardNo": "UH78912285EA",
           "residenceExpiry": "2026年07月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月4日",
+          "applicationType": "更新申請"
         }
       ]
     },
@@ -355,8 +355,8 @@
           "birthDate": "1994年07月19日",
           "cardNo": "UH82697803EA",
           "residenceExpiry": "2026年07月10日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月4日",
+          "applicationType": "更新申請"
         },
         {
           "name": "MOKBUL",
@@ -367,8 +367,8 @@
           "birthDate": "1988年02月02日",
           "cardNo": "UH26627608EA",
           "residenceExpiry": "2026年07月10日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月4日",
+          "applicationType": "更新申請"
         }
       ]
     }
