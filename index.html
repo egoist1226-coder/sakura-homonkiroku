@@ -709,6 +709,49 @@ function clearCanvas(id) {
   }
 }
 
+function resetForm() {
+  // 署名クリア
+  clearCanvas('signCanvas');
+
+  // 面談実習生リストクリア
+  rows = [];
+  document.getElementById('traineeList').innerHTML = '';
+
+  // チェックリスト全解除
+  document.querySelectorAll('.check-grid input[type=checkbox]').forEach(cb => { cb.checked = false; });
+
+  // 宿泊施設確認リセット
+  const accCk = document.getElementById('accCheck');
+  if (accCk) { accCk.checked = false; document.getElementById('accDetail').classList.remove('show'); }
+  const accAddr = document.getElementById('accAddr');
+  if (accAddr) accAddr.value = '';
+
+  // 次回訪問日時クリア → ロック状態に戻す
+  document.getElementById('nextDate').value = '';
+  document.getElementById('nextDate').classList.add('empty');
+  document.getElementById('nextTime').value = '13:00';
+  onNextVisitChange();
+
+  // テキストエリア3点クリア
+  document.getElementById('somuNote').value = '';
+  ['reportNote', 'sokenText'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    autoResize(el);
+  });
+
+  // 現場写真クリア
+  photos = [];
+  document.getElementById('photoThumbnails').innerHTML = '';
+
+  // 面談モードを「なし」に戻す
+  setInterview(false);
+
+  // 下書きバナー非表示
+  document.getElementById('draftBanner').style.display = 'none';
+  document.getElementById('staffDraftBanner').style.display = 'none';
+}
+
 function toggleAcc(cb) { document.getElementById('accDetail').classList.toggle('show', cb.checked); }
 
 // ── テキストエリア自動リサイズ ──
@@ -843,11 +886,7 @@ function saveRecord() {
     showToast('✅ Google Driveに保存しました');
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
-    document.getElementById('somuNote').value = '';
-    document.getElementById('reportNote').value = '';
-    const soken = document.getElementById('sokenText');
-    soken.value = '';
-    autoResize(soken);
+    resetForm();
   })
   .catch(() => {
     showToast('⚠ 保存に失敗しました（オフライン？）');
