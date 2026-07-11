@@ -136,9 +136,41 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 .res-badge.yellow{background:#fde047;color:#713f12}
 .res-badge.red{background:#fca5a5;color:#7f1d1d}
 .res-badge.orange{background:#fdba74;color:#7c2d12}
+/* ── ログイン画面 ── */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#fdf0f3 0%,#fff5f8 100%);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px}
+.login-overlay.hidden{display:none}
+.login-title{font-size:20px;font-weight:700;color:#c06080;text-align:center;line-height:1.5}
+.login-sub{font-size:13px;color:#a07080;text-align:center}
+.login-status{font-size:12px;color:#a07080;min-height:20px;text-align:center}
+/* ── ログイン済みユーザーバー ── */
+.user-bar{background:rgba(255,255,255,.5);border-radius:8px;padding:6px 12px;margin-top:8px;display:none;align-items:center;gap:8px;font-size:12px}
+.user-bar-name{font-weight:700;color:#7a3050}
+.btn-logout{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:6px;border:1.5px solid #d07090;background:white;color:#d07090;cursor:pointer}
 </style>
+<script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 <body>
+
+<!-- ── ログイン画面（認証前に全画面表示） ── -->
+<div class="login-overlay" id="loginOverlay">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAwNy8xMy8xMOCOEeEAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzXqse3BAAAA1klEQVRoge2ZwQ2DMAxF3yC9MgInegAnegIm6krdoNAN2KAjdAN2YJWuEAmhKFEDqf+T8hVZlp+/iEhE9AXcgB3YgAIuQAYuQAbObQBe0hFAWHDEwIIRBIwgeIQBIwgeIcBI0IeAEaAPA0YAQkBzQiTgC/ARiJA05VJBKLOUnCHQmC0LBhBWQLOIvlJnRbfkKNIFDRiKkPCsBFKCLARSgiwEUoIsBAKQOwW+AJqrJDkmG3V8pGnFoQSBj5h9B3jLuCCJqIJKMKVWj0cBxoAAAAABJRU5ErkJggg==" height="64" alt="さくら" style="border-radius:50%;opacity:.8">
+  <div class="login-title">訪問指導記録票<br><span style="font-size:13px;font-weight:500;color:#a07080">公益社団法人 さくら研修機構</span></div>
+  <div class="login-sub">Googleアカウントでログインしてください</div>
+  <div id="g_id_onload"
+       data-client_id="GOOGLE_CLIENT_ID_PLACEHOLDER"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="sign_in_with"
+       data-locale="ja">
+  </div>
+  <div class="login-status" id="loginStatus"></div>
+</div>
+
 <div class="form-wrap">
   <div class="form-header">
     <div class="logo-row">
@@ -151,6 +183,12 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     </div>
     <div style="text-align:right;margin-top:6px">
       <p style="font-size:9px;color:#7a3050;opacity:.85">記録はクラウドに自動保存されます　保存先：さくら研修機構_訪問記録 / 企業名 / 年月</p>
+    </div>
+    <!-- ログイン済みユーザーバー -->
+    <div class="user-bar" id="userBar">
+      <span>👤</span>
+      <span class="user-bar-name" id="userBarName"></span>
+      <button class="btn-logout" onclick="logout()">ログアウト</button>
     </div>
   </div>
 
@@ -319,9 +357,9 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── DBロード ──
-let DB = {
-  companies: [
+// ── DB（Google認証後にGASから動的ロード） ──
+let DB = null;
+let _DB_PLACEHOLDER_COMPANIES = [
     { id:'hokkaido_beer', name:'北海道麦酒醸造株式会社', contactName:'戸田　貴', contactEmail:'toda@hokkaidobeer.com', trainees:[
       {name:'LE THI HOAI', certNo:'認2401004689', grade:'技能実習3号', nationality:'ベトナム', gender:'女', birthDate:'1990年06月02日', cardNo:'LI03218414EA', residenceExpiry:'2027年01月28日', applicationDate:'', applicationType:''},
       {name:'NONG KHANH THINH', certNo:'認2401004691', grade:'技能実習3号', nationality:'ベトナム', gender:'男', birthDate:'1997年07月05日', cardNo:'LJ03218406EA', residenceExpiry:'2027年01月28日', applicationDate:'', applicationType:''},
@@ -384,9 +422,7 @@ let DB = {
       {name:'ERDENEBAATAR TSERENTOGTOKH', certNo:'認2404028846', grade:'技能実習2号', nationality:'モンゴル', gender:'女', birthDate:'1993年01月20日', cardNo:'UH15092693EA', residenceExpiry:'2026年09月25日', applicationDate:'', applicationType:''},
       {name:'MIJIDDORJ OTGONDULAM', certNo:'認2504072347', grade:'技能実習2号', nationality:'モンゴル', gender:'女', birthDate:'1996年10月16日', cardNo:'LJ15619453EA', residenceExpiry:'2027年04月06日', applicationDate:'', applicationType:''}
     ]}
-  ],
-  staff:[{name:'宮武　薫'},{name:'松島　妙子'}]
-};
+]; // _DB_PLACEHOLDER_COMPANIES（参照のみ・実データはGAS経由で取得）
 let currentTrainees = [];
 let rows = [];
 let signEnabled = false;
@@ -409,9 +445,7 @@ function populateSelects() {
     ss.appendChild(o);
   });
 }
-populateSelects();
-
-// db.jsonによる上書き無効（インラインDBが正式データ）
+// populateSelects() はGoogle認証後にinitApp()から呼ぶ
 
 function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
@@ -844,6 +878,63 @@ function closePdfModal() {
 // ── Google Drive 保存 ──
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0fkAbaY44RZqZrqFRqQivoxkmmwkiuf96gEz1l--VUb0_vuHrGto3n6KLJQLVz899/exec';
 
+// ── Google認証 ──
+let currentUser = null;
+
+function handleCredentialResponse(response) {
+  const status = document.getElementById('loginStatus');
+  status.textContent = '認証中…';
+  fetch(GAS_URL + '?action=getDb&token=' + encodeURIComponent(response.credential))
+    .then(r => r.json())
+    .then(data => {
+      if (data.status !== 'ok') {
+        if (data.code === 'FORBIDDEN') {
+          status.textContent = '⚠ アクセス権限がありません（' + (data.email || '') + '）';
+        } else if (data.code === 'DB_NOT_FOUND') {
+          status.textContent = '⚠ DBが未設定です。管理者にお問い合わせください';
+        } else {
+          status.textContent = '⚠ 認証に失敗しました（' + (data.code || '') + '）';
+        }
+        return;
+      }
+      DB = data.db;
+      currentUser = data.user;
+      // ユーザーバー表示
+      document.getElementById('userBarName').textContent = data.user.name;
+      document.getElementById('userBar').style.display = 'flex';
+      // ログイン画面を非表示
+      document.getElementById('loginOverlay').classList.add('hidden');
+      // アプリ初期化
+      populateSelects();
+      // 担当者セレクトを自動選択
+      const ss = document.getElementById('staffSelect');
+      const match = Array.from(ss.options).find(o => o.value === currentUser.name);
+      if (match) ss.value = match.value;
+    })
+    .catch(() => {
+      status.textContent = '⚠ 通信エラーが発生しました。再度お試しください';
+    });
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？')) return;
+  DB = null;
+  currentUser = null;
+  resetForm();
+  const cs = document.getElementById('companySelect');
+  while (cs.options.length > 1) cs.remove(1);
+  cs.value = '';
+  const ss = document.getElementById('staffSelect');
+  while (ss.options.length > 1) ss.remove(1);
+  ss.value = '';
+  document.getElementById('userBar').style.display = 'none';
+  document.getElementById('loginStatus').textContent = '';
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+  }
+}
+
 function saveRecord() {
   const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
   if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先：${selectedCompany?.contactEmail || '（メールなし）'}\n\nこの内容で保存・送信してよろしいですか？`)) return;
@@ -862,11 +953,17 @@ function saveRecord() {
       const t = currentTrainees.find(x => x.name === r.select.value) || {};
       return { name: r.select.value, certNo: r.autoDiv.textContent, grade: t.grade||'', nationality: t.nationality||'', gender: t.gender||'', birthDate: t.birthDate||'', interviewItems: r.items||[], otherText: r.otherText||'' };
     }),
-    checklist: Array.from(document.querySelectorAll('.check-grid input[type=checkbox]')).map(cb => ({
-      label: cb.closest('label')?.querySelector('span')?.textContent || '',
-      checked: cb.checked
-    })),
-    accAddress: document.getElementById('accCheck').checked ? document.getElementById('accAddr').value : '',
+    checks: Array.from(document.querySelectorAll('.check-grid input[type=checkbox]'))
+      .filter(cb => cb.checked)
+      .map(cb => {
+        const label = cb.closest('label')?.querySelector('span')?.textContent || '';
+        if (cb.id === 'accCheck') {
+          const addr = document.getElementById('accAddr').value.trim();
+          return addr ? label + '（' + addr + '）' : label;
+        }
+        return label;
+      })
+      .filter(s => s),
     somuNote: document.getElementById('somuNote').value,
     reportNote: document.getElementById('reportNote').value,
     sokenText: document.getElementById('sokenText').value,

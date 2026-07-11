@@ -4,6 +4,15 @@
 
 var ROOT_FOLDER_ID = '1GjarIC37LEN-kcRoxBiV3MELg1dWlrt-'; // さくら研修機構_訪問記録（egoist1226所有・共有フォルダ）
 
+// ── 担当者権限設定（メールアドレス → role: 'admin' | 'staff'） ──
+var STAFF_CONFIG = {
+  'miyatake@sakura-training.jp':   { name: '宮武　薫',  role: 'admin' },
+  'matsushima@sakura-training.jp': { name: '松島　妙子', role: 'admin' },
+  'office@sakura-training.jp':     { name: '総務部',    role: 'admin' }
+};
+var DB_FILE_NAME = 'sakura_db.json';
+var SYNC_SECRET  = 'sakura2026sync'; // sync_homonkiroku.py と共有
+
 function doOptions(e) {
   return ContentService.createTextOutput('').setMimeType(ContentService.MimeType.TEXT);
 }
@@ -11,6 +20,13 @@ function doOptions(e) {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+
+    // ── DB同期（sync_homonkiroku.py から呼ばれる） ──
+    if (data.type === 'syncDb') {
+      if (data.secret !== SYNC_SECRET) return buildResponse({ status: 'error', message: 'Unauthorized' });
+      storeDb(data.db);
+      return buildResponse({ status: 'ok', message: 'DB同期完了' });
+    }
 
     // ── 下書き保存（総務部用 / 訪問担当者用） ──
     if (data.type === 'draft' || data.type === 'draft_staff') {
@@ -262,6 +278,22 @@ function addSectionTitle(body, title) {
 function doGet(e) {
   var action = e.parameter.action;
 
+  // ── DB取得（Google認証後にフロントエンドから呼ばれる） ──
+  if (action === 'getDb') {
+    var token = e.parameter.token;
+    var email = verifyGoogleToken(token);
+    if (!email) return buildResponse({ status: 'error', code: 'INVALID_TOKEN' });
+    var staff = STAFF_CONFIG[email];
+    if (!staff) return buildResponse({ status: 'error', code: 'FORBIDDEN', email: email });
+    var db = getStoredDb();
+    if (!db) return buildResponse({ status: 'error', code: 'DB_NOT_FOUND' });
+    return buildResponse({
+      status: 'ok',
+      db: filterDbForStaff(db, staff),
+      user: { email: email, name: staff.name, role: staff.role }
+    });
+  }
+
   if (action === 'getDraft') {
     var companyId = e.parameter.companyId;
     try {
@@ -330,6 +362,46 @@ function formatDateJp(isoStr) {
     var day = d.getDate();
     return '令和' + y + '年' + m + '月' + day + '日';
   } catch(e) { return isoStr || ''; }
+}
+
+// ── 認証・DBヘルパー ──
+function verifyGoogleToken(idToken) {
+  if (!idToken) return null;
+  try {
+    var res = UrlFetchApp.fetch(
+      'https://oauth2.googleapis.com/tokeninfo?id_token=' + idToken,
+      { muteHttpExceptions: true }
+    );
+    if (res.getResponseCode() !== 200) return null;
+    var info = JSON.parse(res.getContentText());
+    return info.email || null;
+  } catch(e) { return null; }
+}
+
+function getStoredDb() {
+  try {
+    var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+    var files = root.getFilesByName(DB_FILE_NAME);
+    if (!files.hasNext()) return null;
+    return JSON.parse(files.next().getBlob().getDataAsString());
+  } catch(e) { return null; }
+}
+
+function storeDb(db) {
+  var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+  var existing = root.getFilesByName(DB_FILE_NAME);
+  while (existing.hasNext()) existing.next().setTrashed(true);
+  root.createFile(DB_FILE_NAME, JSON.stringify(db), 'application/json');
+}
+
+function filterDbForStaff(db, staff) {
+  if (staff.role === 'admin') return db;
+  // staffロールの場合は担当企業（staff.companies配列）のみ返す
+  var allowedIds = staff.companies || [];
+  return {
+    companies: db.companies.filter(function(c) { return allowedIds.indexOf(c.id) !== -1; }),
+    staff: db.staff
+  };
 }
 
 function buildResponse(obj) {
