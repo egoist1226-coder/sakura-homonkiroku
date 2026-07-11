@@ -22,20 +22,19 @@ function doPost(e) {
     var data = JSON.parse(e.postData.contents);
 
     // ── DB取得（Googleログイン認証・POSTで受け取る） ──
-    if (data.type === 'getDb') {
-      var email = verifyGoogleToken(data.token);
-      if (!email) return buildResponse({ status: 'error', code: 'INVALID_TOKEN' });
-      var staff = STAFF_CONFIG[email];
-      if (!staff) return buildResponse({ status: 'error', code: 'FORBIDDEN', email: email });
-      var db = getStoredDb();
-      if (!db) return buildResponse({ status: 'error', code: 'DB_NOT_FOUND' });
-      return buildResponse({
-        status: 'ok',
-        db: filterDbForStaff(db, staff),
-        user: { email: email, name: staff.name, role: staff.role }
-      });
-    }
-
+if (data.type === 'getDb') {
+  var email = verifyGoogleToken(data.token);
+  if (!email) return buildResponse({ status: 'error', code: 'INVALID_TOKEN' });
+  var staff = STAFF_CONFIG[email];
+  if (!staff) return buildResponse({ status: 'error', code: 'FORBIDDEN', email: email });
+  var db = getStoredDb();
+  if (!db) return buildResponse({ status: 'error', code: 'DB_NOT_FOUND' });
+  return buildResponse({
+    status: 'ok',
+    db: filterDbForStaff(db, staff),
+    user: { email: email, name: staff.name, role: staff.role }
+  });
+}
     // ── DB同期（sync_homonkiroku.py から呼ばれる） ──
     if (data.type === 'syncDb') {
       if (data.secret !== SYNC_SECRET) return buildResponse({ status: 'error', message: 'Unauthorized' });
@@ -49,10 +48,34 @@ function doPost(e) {
       var draftKey = data.type === 'draft_staff' ? 'staff_' + data.companyId : data.companyId;
       var draftName = '下書き_' + draftKey + '.json';
       var existing = drafts.getFilesByName(draftName);
-      if (existing.hasNext()) existing.next().setTrashed(true);
-      var blob = Utilities.newBlob(JSON.stringify(data, null, 2), 'application/json', draftName);
-      drafts.createFile(blob);
-      return buildResponse({ status: 'ok', message: '下書きを保存しました' });
+      if (existing.hasNext()) {
+        var currentFile = existing.next();
+        // 楽観的ロック：読み込み時のbase値と現在のファイルを照合
+        if (data.baseModified !== undefined && data.baseModified !== null) {
+          var currentModified = currentFile.getLastUpdated().getTime();
+          var currentSize     = currentFile.getSize();
+          if (currentModified !== data.baseModified || currentSize !== data.baseSize) {
+            return buildResponse({
+              status: 'conflict',
+              currentModified: currentModified,
+              currentSize: currentSize,
+              message: '他のユーザーが更新しています'
+            });
+          }
+        }
+        currentFile.setTrashed(true);
+      }
+      var saveData = JSON.parse(JSON.stringify(data));
+      delete saveData.baseModified;
+      delete saveData.baseSize;
+      var blob = Utilities.newBlob(JSON.stringify(saveData, null, 2), 'application/json', draftName);
+      var newFile = drafts.createFile(blob);
+      return buildResponse({
+        status: 'ok',
+        message: '下書きを保存しました',
+        newModified: newFile.getLastUpdated().getTime(),
+        newSize: newFile.getSize()
+      });
     }
 
     // ── フォルダ準備 ──
@@ -333,8 +356,14 @@ function doGet(e) {
       var drafts = getDraftsFolder();
       var files = drafts.getFilesByName('下書き_' + companyId + '.json');
       if (files.hasNext()) {
-        var content = files.next().getBlob().getDataAsString();
-        return buildResponse({ status: 'ok', draft: JSON.parse(content) });
+        var f = files.next();
+        var content = f.getBlob().getDataAsString();
+        return buildResponse({
+          status: 'ok',
+          draft: JSON.parse(content),
+          lastModified: f.getLastUpdated().getTime(),
+          fileSize: f.getSize()
+        });
       } else {
         return buildResponse({ status: 'not_found' });
       }

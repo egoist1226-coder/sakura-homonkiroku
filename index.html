@@ -491,15 +491,22 @@ function onCompanyChange() {
   if (co) loadDraft(co.id);
 }
 
+// 下書きの楽観的ロック用base値（読み込み時のタイムスタンプ・サイズを記録）
+let somuDraftBase  = { modified: null, size: null };
+let staffDraftBase = { modified: null, size: null };
+
 function loadDraft(companyId) {
   // 訪問担当者用下書き読み込み
   fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent('staff_' + companyId))
     .then(r => r.json())
     .then(res => {
       if (res.status === 'ok' && res.draft && (res.draft.sokenText || res.draft.reportNote)) {
+        staffDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
         if (res.draft.reportNote) { document.getElementById('reportNote').value = res.draft.reportNote; autoResize(document.getElementById('reportNote')); }
         if (res.draft.sokenText) { document.getElementById('sokenText').value = res.draft.sokenText; autoResize(document.getElementById('sokenText')); }
         document.getElementById('staffDraftBanner').style.display = '';
+      } else {
+        staffDraftBase = { modified: null, size: null };
       }
     })
     .catch(() => {});
@@ -508,8 +515,11 @@ function loadDraft(companyId) {
     .then(r => r.json())
     .then(res => {
       if (res.status === 'ok' && res.draft && res.draft.somuNote) {
+        somuDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
         document.getElementById('somuNote').value = res.draft.somuNote;
         document.getElementById('draftBanner').style.display = '';
+      } else {
+        somuDraftBase = { modified: null, size: null };
       }
     })
     .catch(() => {});
@@ -526,14 +536,24 @@ function saveStaffDraft() {
   btn.disabled = true;
   fetch(GAS_URL, {
     method: 'POST',
-    body: JSON.stringify({ type: 'draft_staff', companyId: co.id, company: co.name, reportNote: document.getElementById('reportNote').value, sokenText: note })
+    body: JSON.stringify({
+      type: 'draft_staff', companyId: co.id, company: co.name,
+      reportNote: document.getElementById('reportNote').value, sokenText: note,
+      baseModified: staffDraftBase.modified, baseSize: staffDraftBase.size
+    })
   })
     .then(r => r.json())
     .then(res => {
       btn.textContent = '💾 下書き保存（訪問担当者用）';
       btn.disabled = false;
-      if (res.status === 'ok') { showToast('下書きを保存しました'); }
-      else { alert('保存に失敗しました: ' + (res.message || '')); }
+      if (res.status === 'ok') {
+        staffDraftBase = { modified: res.newModified ?? null, size: res.newSize ?? null };
+        showToast('下書きを保存しました');
+      } else if (res.status === 'conflict') {
+        alert('⚠ 最新のデータが書き込まれています。\n\n別のユーザーが同じ企業の下書き（訪問担当者用）を更新しました。\n「🔄 更新」ボタンで最新内容を確認してから改めて保存してください。');
+      } else {
+        alert('保存に失敗しました: ' + (res.message || ''));
+      }
     })
     .catch(() => {
       btn.textContent = '💾 下書き保存（訪問担当者用）';
@@ -553,14 +573,20 @@ function saveDraft() {
   btn.disabled = true;
   fetch(GAS_URL, {
     method: 'POST',
-    body: JSON.stringify({ type: 'draft', companyId: co.id, company: co.name, somuNote: note })
+    body: JSON.stringify({
+      type: 'draft', companyId: co.id, company: co.name, somuNote: note,
+      baseModified: somuDraftBase.modified, baseSize: somuDraftBase.size
+    })
   })
     .then(r => r.json())
     .then(res => {
       btn.textContent = '💾 下書き保存（総務部用）';
       btn.disabled = false;
       if (res.status === 'ok') {
+        somuDraftBase = { modified: res.newModified ?? null, size: res.newSize ?? null };
         showToast('下書きを保存しました');
+      } else if (res.status === 'conflict') {
+        alert('⚠ 最新のデータが書き込まれています。\n\n別のユーザーが同じ企業の下書き（総務部用）を更新しました。\n「🔄 更新」ボタンで最新内容を確認してから改めて保存してください。');
       } else {
         alert('保存に失敗しました: ' + (res.message || ''));
       }
@@ -748,6 +774,8 @@ function clearCanvas(id) {
 }
 
 function resetForm() {
+  somuDraftBase  = { modified: null, size: null };
+  staffDraftBase = { modified: null, size: null };
   stopSaveEventPolling();
   clearCanvas('signCanvas');
 
@@ -1054,14 +1082,31 @@ function saveRecord() {
         .then(res => {
           if (res.status === 'ok' && res.draft && res.draft.somuNote !== undefined) {
             const currentVal = document.getElementById('somuNote').value;
-            if (res.draft.somuNote !== currentVal) {
-              document.getElementById('somuNote').value = res.draft.somuNote;
+            const latestVal  = res.draft.somuNote;
+            if (latestVal !== currentVal) {
+              // 内容が変わっていた場合、ユーザーに確認を求める
+              const proceed = confirm(
+                '⚠ 総務部からの要望事項が更新されています。\n\n' +
+                '【最新の内容】\n' + (latestVal || '（空欄）') + '\n\n' +
+                'この内容をPDFに含めて送信します。\n内容を確認のうえ「OK」を押してください。\n' +
+                '（「キャンセル」で送信を中止できます）'
+              );
+              if (!proceed) {
+                // 送信キャンセル：最新内容をDOMに反映して終了
+                document.getElementById('somuNote').value = latestVal;
+                somuDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
+                document.getElementById('draftBanner').style.display = '';
+                btn.textContent = '保存と企業様へ送信';
+                btn.classList.remove('disabled');
+                return Promise.reject('cancelled');
+              }
+              document.getElementById('somuNote').value = latestVal;
+              somuDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
               document.getElementById('draftBanner').style.display = '';
-              showToast('ℹ️ 総務部の要望事項を最新に更新しました');
             }
           }
         })
-        .catch(() => {})
+        .catch(err => { if (err !== 'cancelled') {} else { return Promise.reject('cancelled'); } })
     : Promise.resolve();
 
   fetchLatestSomu.then(() => {
