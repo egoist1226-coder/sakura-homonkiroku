@@ -903,7 +903,11 @@ function bypassLogin() {
 function handleCredentialResponse(response) {
   const status = document.getElementById('loginStatus');
   status.textContent = '認証中…';
-  fetch(GAS_URL + '?action=getDb&token=' + encodeURIComponent(response.credential))
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'getDb', token: response.credential })
+  })
     .then(r => r.json())
     .then(data => {
       if (data.status !== 'ok') {

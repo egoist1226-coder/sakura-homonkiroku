@@ -21,6 +21,21 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
+    // ── DB取得（Googleログイン認証・POSTで受け取る） ──
+    if (data.type === 'getDb') {
+      var email = verifyGoogleToken(data.token);
+      if (!email) return buildResponse({ status: 'error', code: 'INVALID_TOKEN' });
+      var staff = STAFF_CONFIG[email];
+      if (!staff) return buildResponse({ status: 'error', code: 'FORBIDDEN', email: email });
+      var db = getStoredDb();
+      if (!db) return buildResponse({ status: 'error', code: 'DB_NOT_FOUND' });
+      return buildResponse({
+        status: 'ok',
+        db: filterDbForStaff(db, staff),
+        user: { email: email, name: staff.name, role: staff.role }
+      });
+    }
+
     // ── DB同期（sync_homonkiroku.py から呼ばれる） ──
     if (data.type === 'syncDb') {
       if (data.secret !== SYNC_SECRET) return buildResponse({ status: 'error', message: 'Unauthorized' });
@@ -90,7 +105,7 @@ function doPost(e) {
           to: data.contactEmail,
           bcc: 'miyatake@sakura-training.jp',
           name: 'さくら研修機構総務部',
-          replyTo: 'office@sakura-training.jp',
+          replyTo: 'honbu.soumu@sakura-training.jp',
           subject: subject,
           body: body,
           attachments: [pdfBlob]
@@ -406,12 +421,19 @@ function verifyGoogleToken(idToken) {
       'https://oauth2.googleapis.com/tokeninfo?id_token=' + idToken,
       { muteHttpExceptions: true }
     );
-    if (res.getResponseCode() !== 200) return null;
-    var info = JSON.parse(res.getContentText());
+    var code = res.getResponseCode();
+    var body = res.getContentText();
+    if (code !== 200) {
+      Logger.log('tokeninfo error: ' + code + ' ' + body);
+      return null;
+    }
+    var info = JSON.parse(body);
     return info.email || null;
-  } catch(e) { return null; }
+  } catch(e) {
+    Logger.log('verifyGoogleToken exception: ' + e.toString());
+    return null;
+  }
 }
-
 function getStoredDb() {
   try {
     var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
