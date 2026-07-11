@@ -1044,8 +1044,28 @@ function saveRecord() {
   if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先：${selectedCompany?.contactEmail || '（メールなし）'}\n\nこの内容で保存・送信してよろしいですか？`)) return;
 
   const btn = document.getElementById('btnSave');
-  btn.textContent = '送信中…';
+  btn.textContent = '最新情報を確認中…';
   btn.classList.add('disabled');
+
+  // 送信直前に総務部の最新下書きをDriveから取得してDOMを更新する
+  const fetchLatestSomu = selectedCompany
+    ? fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent(selectedCompany.id))
+        .then(r => r.json())
+        .then(res => {
+          if (res.status === 'ok' && res.draft && res.draft.somuNote !== undefined) {
+            const currentVal = document.getElementById('somuNote').value;
+            if (res.draft.somuNote !== currentVal) {
+              document.getElementById('somuNote').value = res.draft.somuNote;
+              document.getElementById('draftBanner').style.display = '';
+              showToast('ℹ️ 総務部の要望事項を最新に更新しました');
+            }
+          }
+        })
+        .catch(() => {})
+    : Promise.resolve();
+
+  fetchLatestSomu.then(() => {
+  btn.textContent = '送信中…';
   const record = {
     savedAt: new Date().toISOString(),
     company: selectedCompany?.name || '',
@@ -1090,6 +1110,7 @@ function saveRecord() {
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
   });
+  }); // fetchLatestSomu.then
 }
 
 // ── キャッシュ強制クリア＆更新 ──
