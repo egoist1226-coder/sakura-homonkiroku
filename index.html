@@ -530,7 +530,6 @@ function saveStaffDraft() {
   const co = DB.companies.find(c => c.id === id);
   if (!co) return alert('企業を選択してください');
   const note = document.getElementById('sokenText').value;
-  if (!note.trim()) return alert('総合所見を入力してください');
   const btn = document.getElementById('staffDraftSaveBtn');
   btn.textContent = '保存中…';
   btn.disabled = true;
@@ -567,7 +566,6 @@ function saveDraft() {
   const co = DB.companies.find(c => c.id === id);
   if (!co) return alert('企業を選択してください');
   const note = document.getElementById('somuNote').value;
-  if (!note.trim()) return alert('要望事項を入力してください');
   const btn = document.getElementById('draftSaveBtn');
   btn.textContent = '保存中…';
   btn.disabled = true;
