@@ -957,7 +957,7 @@ function logout() {
 
 // ── ロールベースUI制限 ──
 function applyRoleUI(user) {
-  if (!user || user.email !== 'office@sakura-training.jp') return;
+  if (!user || user.email !== 'honbu.soumu@sakura-training.jp') return;
   // somu セクション以外をすべて閲覧のみに
   document.querySelectorAll('.section:not(.somu)').forEach(el => el.classList.add('somu-lock'));
   document.querySelector('.submit-bar').classList.add('somu-lock');
