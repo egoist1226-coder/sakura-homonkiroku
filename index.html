@@ -171,6 +171,11 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
        data-locale="ja">
   </div>
   <div class="login-status" id="loginStatus"></div>
+  <div style="margin-top:8px;font-size:11px;color:#c0a0b0">
+    <a href="#" id="bypassBtn" onclick="bypassLogin();return false;" style="color:#c09090;text-decoration:underline">
+      ▶ Googleログインをスキップ（暫定）
+    </a>
+  </div>
 </div>
 
 <div class="form-wrap">
@@ -874,6 +879,26 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0fkAbaY44RZqZrqFRqQiv
 
 // ── Google認証 ──
 let currentUser = null;
+
+function bypassLogin() {
+  const status = document.getElementById('loginStatus');
+  status.textContent = 'データ読込中…';
+  fetch('./db.json?_=' + Date.now())
+    .then(r => r.json())
+    .then(db => {
+      DB = db;
+      currentUser = { email: 'miyatake@sakura-training.jp', name: '宮武　薫', role: 'admin' };
+      document.getElementById('userBarName').textContent = currentUser.name;
+      document.getElementById('userBar').style.display = 'flex';
+      document.getElementById('loginOverlay').classList.add('hidden');
+      populateSelects();
+      applyRoleUI(currentUser);
+      const ss = document.getElementById('staffSelect');
+      const match = Array.from(ss.options).find(o => o.value === currentUser.name);
+      if (match) ss.value = match.value;
+    })
+    .catch(() => { status.textContent = '⚠ db.jsonの読込に失敗しました'; });
+}
 
 function handleCredentialResponse(response) {
   const status = document.getElementById('loginStatus');
