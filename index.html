@@ -136,6 +136,8 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
 .res-badge.yellow{background:#fde047;color:#713f12}
 .res-badge.red{background:#fca5a5;color:#7f1d1d}
 .res-badge.orange{background:#fdba74;color:#7c2d12}
+/* ── 総務部ロック（閲覧のみ） ── */
+.somu-lock{pointer-events:none;opacity:.6;user-select:none}
 /* ── ログイン画面 ── */
 .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#fdf0f3 0%,#fff5f8 100%);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px}
 .login-overlay.hidden{display:none}
@@ -239,10 +241,6 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
       <label class="check-item"><input type="checkbox"><span>訪問指導記録書への記入確認</span></label>
       <label class="check-item"><input type="checkbox"><span>実習生との面談実施（3ヶ月に1度以上）</span></label>
       <label class="check-item"><input type="checkbox"><span>実習生の自宅訪問（3ヶ月に1度以上）</span></label>
-      <label class="check-item"><input type="checkbox" id="accCheck" onchange="toggleAcc(this)"><span>宿泊施設・生活環境の確認</span></label>
-      <div class="acc-detail" id="accDetail">
-        <div class="field"><label>確認した宿泊施設住所</label><input type="text" id="accAddr" placeholder="住所を入力..."></div>
-      </div>
     </div>
   </div>
 
@@ -449,6 +447,7 @@ function populateSelects() {
 
 function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
+  if (id) startSaveEventPolling(id); else stopSaveEventPolling();
   const co = DB.companies.find(c => c.id === id);
   currentTrainees = co ? co.trainees : [];
   rows = [];
@@ -744,7 +743,7 @@ function clearCanvas(id) {
 }
 
 function resetForm() {
-  // 署名クリア
+  stopSaveEventPolling();
   clearCanvas('signCanvas');
 
   // 面談実習生リストクリア
@@ -755,10 +754,6 @@ function resetForm() {
   document.querySelectorAll('.check-grid input[type=checkbox]').forEach(cb => { cb.checked = false; });
 
   // 宿泊施設確認リセット
-  const accCk = document.getElementById('accCheck');
-  if (accCk) { accCk.checked = false; document.getElementById('accDetail').classList.remove('show'); }
-  const accAddr = document.getElementById('accAddr');
-  if (accAddr) accAddr.value = '';
 
   // 次回訪問日時クリア → ロック状態に戻す
   document.getElementById('nextDate').value = '';
@@ -786,7 +781,6 @@ function resetForm() {
   document.getElementById('staffDraftBanner').style.display = 'none';
 }
 
-function toggleAcc(cb) { document.getElementById('accDetail').classList.toggle('show', cb.checked); }
 
 // ── テキストエリア自動リサイズ ──
 function autoResize(el) {
@@ -906,6 +900,7 @@ function handleCredentialResponse(response) {
       document.getElementById('loginOverlay').classList.add('hidden');
       // アプリ初期化
       populateSelects();
+      applyRoleUI(data.user);
       // 担当者セレクトを自動選択
       const ss = document.getElementById('staffSelect');
       const match = Array.from(ss.options).find(o => o.value === currentUser.name);
@@ -935,6 +930,56 @@ function logout() {
   }
 }
 
+// ── ロールベースUI制限 ──
+function applyRoleUI(user) {
+  if (!user || user.email !== 'office@sakura-training.jp') return;
+  // somu セクション以外をすべて閲覧のみに
+  document.querySelectorAll('.section:not(.somu)').forEach(el => el.classList.add('somu-lock'));
+  document.querySelector('.submit-bar').classList.add('somu-lock');
+  // 保存・PDF・訪問担当者用下書きボタンは非表示
+  ['btnSave', 'btnPdf', 'staffDraftSaveBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
+// ── クロスデバイスフォームクリア（Plan A+） ──
+let _pollTimer = null;
+let _pollCompanyId = null;
+let _pollSince = null;
+
+function startSaveEventPolling(companyId) {
+  stopSaveEventPolling();
+  _pollCompanyId = companyId;
+  _pollSince = new Date().toISOString();
+  _pollTimer = setInterval(_checkSaveEvent, 30000);
+}
+
+function stopSaveEventPolling() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+  _pollCompanyId = null;
+  _pollSince = null;
+}
+
+function _checkSaveEvent() {
+  if (!_pollCompanyId || !_pollSince) return;
+  fetch(GAS_URL + '?action=checkSaveEvent&companyId=' + encodeURIComponent(_pollCompanyId) + '&since=' + encodeURIComponent(_pollSince))
+    .then(r => r.json())
+    .then(data => {
+      if (data.saved) {
+        showToast('📱 別デバイスで送信されました。フォームをクリアします。');
+        setTimeout(resetForm, 1500);
+        stopSaveEventPolling();
+      }
+    })
+    .catch(() => {});
+}
+
+// スリープ復帰・タブ切替時に即時チェック
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') _checkSaveEvent();
+});
+
 function saveRecord() {
   const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
   if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先：${selectedCompany?.contactEmail || '（メールなし）'}\n\nこの内容で保存・送信してよろしいですか？`)) return;
@@ -957,10 +1002,6 @@ function saveRecord() {
       .filter(cb => cb.checked)
       .map(cb => {
         const label = cb.closest('label')?.querySelector('span')?.textContent || '';
-        if (cb.id === 'accCheck') {
-          const addr = document.getElementById('accAddr').value.trim();
-          return addr ? label + '（' + addr + '）' : label;
-        }
         return label;
       })
       .filter(s => s),

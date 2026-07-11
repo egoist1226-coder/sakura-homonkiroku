@@ -111,6 +111,9 @@ function doPost(e) {
       calResult = 'error: ' + calErr.toString();
     }
 
+    // ── クロスデバイスフォームクリア用：保存イベント記録 ──
+    try { recordSaveEvent(data.companyId || ''); } catch(re) {}
+
     return buildResponse({ status: 'ok', fileId: pdfFile.getId(), fileName: pdfName, mail: mailResult, calendar: calResult });
 
   } catch (err) {
@@ -278,6 +281,21 @@ function addSectionTitle(body, title) {
 function doGet(e) {
   var action = e.parameter.action;
 
+  // ── クロスデバイスフォームクリア：保存イベント確認 ──
+  if (action === 'checkSaveEvent') {
+    var companyId = e.parameter.companyId;
+    var since     = e.parameter.since;
+    try {
+      var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+      var evFiles = root.getFilesByName('_save_events.json');
+      if (!evFiles.hasNext()) return buildResponse({ status: 'ok', saved: false });
+      var events = JSON.parse(evFiles.next().getBlob().getDataAsString());
+      var savedAt = events[companyId];
+      if (savedAt && savedAt > since) return buildResponse({ status: 'ok', saved: true, savedAt: savedAt });
+      return buildResponse({ status: 'ok', saved: false });
+    } catch(ex) { return buildResponse({ status: 'ok', saved: false }); }
+  }
+
   // ── DB取得（Google認証後にフロントエンドから呼ばれる） ──
   if (action === 'getDb') {
     var token = e.parameter.token;
@@ -362,6 +380,22 @@ function formatDateJp(isoStr) {
     var day = d.getDate();
     return '令和' + y + '年' + m + '月' + day + '日';
   } catch(e) { return isoStr || ''; }
+}
+
+// ── クロスデバイス保存イベント記録 ──
+function recordSaveEvent(companyId) {
+  if (!companyId) return;
+  var root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+  var fname = '_save_events.json';
+  var events = {};
+  var existing = root.getFilesByName(fname);
+  if (existing.hasNext()) {
+    try { events = JSON.parse(existing.next().getBlob().getDataAsString()); } catch(e) {}
+    var existing2 = root.getFilesByName(fname);
+    if (existing2.hasNext()) existing2.next().setTrashed(true);
+  }
+  events[companyId] = new Date().toISOString();
+  root.createFile(fname, JSON.stringify(events), 'application/json');
 }
 
 // ── 認証・DBヘルパー ──
