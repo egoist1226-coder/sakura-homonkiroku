@@ -240,11 +240,9 @@ function createVisitPdf(data) {
   body.appendParagraph('面談の有無：' + (data.interviewMode || 'なし'));
 
   if (data.trainees && data.trainees.length > 0) {
-    var rows = [['氏名', '在留資格', '国籍', '性別', '生年月日', '面談内容']];
+    var rows = [['氏名', '在留資格', '国籍', '性別', '生年月日']];
     data.trainees.forEach(function(t) {
-      var items = (t.interviewItems || []).join('、');
-      if (t.otherText) items += (items ? '\n' : '') + t.otherText;
-      rows.push([t.name||'', t.grade||'', t.nationality||'', t.gender||'', t.birthDate||'', items]);
+      rows.push([t.name||'', t.grade||'', t.nationality||'', t.gender||'', t.birthDate||'']);
     });
     body.appendTable(rows);
   }
