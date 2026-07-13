@@ -779,14 +779,17 @@ function resetForm() {
   stopSaveEventPolling();
   clearCanvas('signCanvas');
 
+  // 企業・担当者プルダウンをクリア
+  document.getElementById('companySelect').value = '';
+  document.getElementById('staffSelect').value = '';
+  currentTrainees = [];
+
   // 面談実習生リストクリア
   rows = [];
   document.getElementById('traineeList').innerHTML = '';
 
   // チェックリスト全解除
   document.querySelectorAll('.check-grid input[type=checkbox]').forEach(cb => { cb.checked = false; });
-
-  // 宿泊施設確認リセット
 
   // 次回訪問日時クリア → ロック状態に戻す
   document.getElementById('nextDate').value = '';
@@ -1163,14 +1166,14 @@ function saveRecord() {
   })
   .then(() => {
     showToast('✅ Google Driveに保存しました');
+  })
+  .catch(() => {
+    showToast('⚠ 送信しました（保存状況はメールでご確認ください）');
+  })
+  .finally(() => {
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
     resetForm();
-  })
-  .catch(() => {
-    showToast('⚠ 保存に失敗しました（オフライン？）');
-    btn.textContent = '保存と企業様へ送信';
-    btn.classList.remove('disabled');
   });
   }); // fetchLatestSomu.then
 }
