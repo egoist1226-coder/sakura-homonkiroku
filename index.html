@@ -529,6 +529,7 @@ function saveStaffDraft() {
   const id = document.getElementById('companySelect').value;
   const co = DB.companies.find(c => c.id === id);
   if (!co) return alert('企業を選択してください');
+  if (!confirm('下書きを保存しますか？')) return;
   const note = document.getElementById('sokenText').value;
   const btn = document.getElementById('staffDraftSaveBtn');
   btn.textContent = '保存中…';
@@ -565,6 +566,7 @@ function saveDraft() {
   const id = document.getElementById('companySelect').value;
   const co = DB.companies.find(c => c.id === id);
   if (!co) return alert('企業を選択してください');
+  if (!confirm('下書きを保存しますか？')) return;
   const note = document.getElementById('somuNote').value;
   const btn = document.getElementById('draftSaveBtn');
   btn.textContent = '保存中…';
