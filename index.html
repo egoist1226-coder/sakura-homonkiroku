@@ -1018,14 +1018,31 @@ function logout() {
 // ── ロールベースUI制限 ──
 function applyRoleUI(user) {
   if (!user || user.email !== 'honbu.soumu@sakura-training.jp') return;
-  // somu セクション以外をすべて閲覧のみに
-  document.querySelectorAll('.section:not(.somu)').forEach(el => el.classList.add('somu-lock'));
-  document.querySelector('.submit-bar').classList.add('somu-lock');
-  // 保存・PDF・訪問担当者用下書きボタンは非表示
+
+  // 総務部ロール：企業プルダウン・過去の記録ボタン・総務セクションを除いた
+  // 入力要素をすべてロック（セクション単位ではなく要素単位でかける）
+  const lockSelectors = [
+    '.section:not(.somu) textarea',
+    '.section:not(.somu) input',
+    '.section:not(.somu) select:not(#companySelect)',
+    '.section:not(.somu) canvas',
+  ];
+  document.querySelectorAll(lockSelectors.join(','))
+    .forEach(el => el.classList.add('somu-lock'));
+
+  // 実習生追加・署名・訪問担当者用ボタン類もロック
+  document.querySelectorAll('.section:not(.somu) button:not(.btn-past-pdf)')
+    .forEach(el => el.classList.add('somu-lock'));
+
+  // 保存・PDF送信・訪問担当者用下書きボタンは非表示
   ['btnSave', 'btnPdf', 'staffDraftSaveBtn'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+
+  // 過去の記録ボタンは総務部でも使えるよう明示的に有効化
+  document.querySelectorAll('.btn-past-pdf')
+    .forEach(el => { el.classList.remove('somu-lock'); el.style.pointerEvents = 'auto'; el.style.opacity = '1'; });
 }
 
 // ── クロスデバイスフォームクリア（Plan A+） ──
