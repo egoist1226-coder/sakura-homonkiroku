@@ -185,7 +185,7 @@ function createCalendarEvent(data) {
   };
 
   var staffEmail = staffEmailMap[data.staff] || '';
-  var title = '訪問指導：' + (data.company || '');
+  var title = (data.company || '') + 'さま　往訪';
   var description =
     '【訪問先】' + (data.company || '') + '\n' +
     '【担当者】' + (data.staff || '') + '\n' +
