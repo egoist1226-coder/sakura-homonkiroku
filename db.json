@@ -231,8 +231,8 @@
           "birthDate": "1996年01月15日",
           "cardNo": "UH41126943SA",
           "residenceExpiry": "2026年09月27日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月15日",
+          "applicationType": "更新申請"
         },
         {
           "name": "FADLI RIYADI",
@@ -243,8 +243,8 @@
           "birthDate": "1996年03月09日",
           "cardNo": "UH11106948SA",
           "residenceExpiry": "2026年08月22日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月15日",
+          "applicationType": "更新申請"
         }
       ]
     },
