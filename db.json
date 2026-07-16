@@ -619,6 +619,26 @@
           "applicationType": ""
         }
       ]
+    },
+    {
+      "id": "株式会社メッツ",
+      "name": "株式会社メッツ",
+      "contactName": "",
+      "contactEmail": "",
+      "trainees": [
+        {
+          "name": "ZAW MYO HEIN",
+          "certNo": "",
+          "grade": "特定技能1号",
+          "nationality": "ミャンマー",
+          "gender": "男",
+          "birthDate": "1995年08月07日",
+          "cardNo": "UH24050825EA",
+          "residenceExpiry": "2026年08月01日",
+          "applicationDate": "",
+          "applicationType": ""
+        }
+      ]
     }
   ],
   "staff": [
