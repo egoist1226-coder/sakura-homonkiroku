@@ -491,6 +491,14 @@ function onCompanyChange() {
     sdsb.style.cssText = 'margin-top:8px;background:#f3f4f6;border:1.5px solid #d1d5db;color:#9ca3af;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:not-allowed';
   }
   if (co) loadDraft(co.id);
+  // 総務部アカウントでは訪問担当者用ボタンを完全非表示に戻す
+  // （上のcssText再設定でdisplay:noneが解除されるため再適用が必要）
+  if (currentUser && currentUser.email === 'honbu.soumu@sakura-training.jp') {
+    ['staffDraftSaveBtn', 'btnSave', 'btnPdf'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
 }
 
 // 下書きの楽観的ロック用base値（読み込み時のタイムスタンプ・サイズを記録）
@@ -1135,6 +1143,7 @@ function saveRecord() {
   btn.textContent = '送信中…';
   const record = {
     savedAt: new Date().toISOString(),
+    companyId: selectedCompany?.id || '',
     company: selectedCompany?.name || '',
     contactName: selectedCompany?.contactName || '',
     contactEmail: selectedCompany?.contactEmail || '',

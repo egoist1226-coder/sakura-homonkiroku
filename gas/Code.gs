@@ -94,12 +94,16 @@ if (data.type === 'getDb') {
     pdfBlob.setName(pdfName);
     var pdfFile = ym.createFile(pdfBlob);
 
-    // ── 下書き削除 ──
+    // ── 下書き削除（総務部用・訪問担当者用の両方） ──
     if (data.companyId) {
       try {
         var drafts2 = getDraftsFolder();
+        // 総務部用下書き
         var draftFiles = drafts2.getFilesByName('下書き_' + data.companyId + '.json');
         if (draftFiles.hasNext()) draftFiles.next().setTrashed(true);
+        // 訪問担当者用下書き
+        var staffDraftFiles = drafts2.getFilesByName('下書き_staff_' + data.companyId + '.json');
+        if (staffDraftFiles.hasNext()) staffDraftFiles.next().setTrashed(true);
       } catch(de) {}
     }
 
@@ -126,7 +130,7 @@ if (data.type === 'getDb') {
 
         MailApp.sendEmail({
           to: data.contactEmail,
-          bcc: 'miyatake@sakura-training.jp',
+          bcc: 'miyatake@sakura-training.jp,office@sakura-training.jp',
           name: 'さくら研修機構総務部',
           replyTo: 'honbu.soumu@sakura-training.jp',
           subject: subject,
