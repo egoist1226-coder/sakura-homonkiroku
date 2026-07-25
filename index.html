@@ -848,12 +848,37 @@ function onPhotosSelected(e) {
   files.forEach(file => {
     const reader = new FileReader();
     reader.onload = ev => {
-      photos.push({ dataUrl: ev.target.result, name: file.name });
-      renderThumbnails();
+      // 送信ペイロード肥大化とPDF埋め込み負荷を避けるため縮小してから保持
+      resizeImage(ev.target.result, 1000, 0.7, (resized) => {
+        photos.push({ dataUrl: resized, name: file.name });
+        renderThumbnails();
+      });
     };
     reader.readAsDataURL(file);
   });
   e.target.value = '';
+}
+
+// 画像を最大辺maxDimに縮小しJPEG化（縦横比維持）。失敗時は原本を返す
+function resizeImage(dataUrl, maxDim, quality, cb) {
+  const img = new Image();
+  img.onload = () => {
+    let w = img.width, h = img.height;
+    if (w > maxDim || h > maxDim) {
+      if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+      else { w = Math.round(w * maxDim / h); h = maxDim; }
+    }
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', quality));
+    } catch (err) {
+      cb(dataUrl);
+    }
+  };
+  img.onerror = () => cb(dataUrl);
+  img.src = dataUrl;
 }
 
 function renderThumbnails() {

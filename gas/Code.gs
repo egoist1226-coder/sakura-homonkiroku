@@ -281,6 +281,40 @@ function createVisitPdf(data) {
 
   body.appendParagraph('');
 
+  // ── 添付写真 ──
+  addSectionTitle(body, '■ 添付写真');
+  if (data.photos && data.photos.length > 0) {
+    var PER_ROW = 3;   // 1行あたりの枚数（横並びグリッド）
+    var THUMB_W = 150; // サムネイル幅(px)
+    var photoPara = body.appendParagraph('');
+    var pcount = 0;
+    data.photos.forEach(function(dataUrl) {
+      if (!dataUrl || dataUrl.indexOf('data:image') !== 0) return;
+      try {
+        var parts = dataUrl.split(',');
+        var mime  = 'image/png';
+        var mm    = parts[0].match(/data:([^;]+)/);
+        if (mm) mime = mm[1];
+        var pblob = Utilities.newBlob(Utilities.base64Decode(parts[1]), mime, 'photo');
+        // PER_ROW枚ごとに改段落して横並びグリッドにする
+        if (pcount > 0 && pcount % PER_ROW === 0) {
+          photoPara = body.appendParagraph('');
+        }
+        var pimg = photoPara.appendInlineImage(pblob);
+        var ow = pimg.getWidth(), oh = pimg.getHeight();
+        pimg.setWidth(THUMB_W);
+        if (ow > 0) pimg.setHeight(Math.round(oh * THUMB_W / ow)); // 縦横比維持
+        photoPara.appendText('  '); // 画像間の余白
+        pcount++;
+      } catch(pe) {}
+    });
+    if (pcount === 0) body.appendParagraph('（写真なし）');
+  } else {
+    body.appendParagraph('（写真なし）');
+  }
+
+  body.appendParagraph('');
+
   // ── 署名 ──
   addSectionTitle(body, '■ 訪問担当者署名');
   if (data.signatureImage && data.signatureImage.indexOf('data:image') === 0) {
