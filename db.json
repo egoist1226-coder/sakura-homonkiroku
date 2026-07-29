@@ -639,6 +639,74 @@
           "applicationType": ""
         }
       ]
+    },
+    {
+      "id": "株式会社Orchester",
+      "name": "株式会社Orchester",
+      "contactName": "",
+      "contactEmail": "",
+      "trainees": [
+        {
+          "name": "AYE PYAE PHYO",
+          "certNo": "認2504048342",
+          "grade": "",
+          "nationality": "ミャンマー",
+          "gender": "女",
+          "birthDate": "1998年06月07日",
+          "cardNo": "UH70026456EA",
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        },
+        {
+          "name": "KHIN WINE",
+          "certNo": "認2504048343",
+          "grade": "",
+          "nationality": "ミャンマー",
+          "gender": "女",
+          "birthDate": "2003年10月09日",
+          "cardNo": "UH37071511EA",
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        },
+        {
+          "name": "NAN EI SAN",
+          "certNo": "認2504048344",
+          "grade": "",
+          "nationality": "ミャンマー",
+          "gender": "女",
+          "birthDate": "1996年06月16日",
+          "cardNo": "UH21132502EA",
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        },
+        {
+          "name": "SU THET MON",
+          "certNo": "認2504048345",
+          "grade": "",
+          "nationality": "ミャンマー",
+          "gender": "女",
+          "birthDate": "1998年06月02日",
+          "cardNo": "UH01430571EA",
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        },
+        {
+          "name": "YU WADI KHAING",
+          "certNo": "認2504048346",
+          "grade": "",
+          "nationality": "ミャンマー",
+          "gender": "女",
+          "birthDate": "2005年05月05日",
+          "cardNo": "UH72614275EA",
+          "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        }
+      ]
     }
   ],
   "staff": [
