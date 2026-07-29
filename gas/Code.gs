@@ -115,9 +115,30 @@ if (data.type === 'getDb') {
         var nextVisit = data.nextVisit ? data.nextVisit.trim() : '未設定';
         var staff     = data.staff || 'さくら研修機構';
 
+        // ── CC担当者（2名目・3名目）の厳密なNullチェック ──
+        // 氏名・メールアドレスの両方が入力されている場合のみ有効なCC対象として扱う
+        var ccList = [];
+        [
+          { name: data.cc2Name, email: data.cc2Email },
+          { name: data.cc3Name, email: data.cc3Email }
+        ].forEach(function(c) {
+          var n = (c.name  || '').trim();
+          var e = (c.email || '').trim();
+          if (n && e && e.indexOf('@') > -1) ccList.push({ name: n, email: e });
+        });
+
+        // ── CC宛名テキストの生成（0名/1名/2名で分岐、不自然な空白・カンマを出さない） ──
+        var ccSalutation = '';
+        if (ccList.length === 2) {
+          ccSalutation = '（ＣＣ：' + ccList[0].name + 'さま、' + ccList[1].name + 'さま）\n';
+        } else if (ccList.length === 1) {
+          ccSalutation = '（ＣＣ：' + ccList[0].name + 'さま）\n';
+        }
+
         var subject = '訪問指導記録票のご送付（' + data.company + '）';
         var body =
-          data.contactName + ' 様\n\n' +
+          data.contactName + ' 様\n' +
+          ccSalutation + '\n' +
           '平素よりお世話になっております。\n' +
           '公益社団法人さくら研修機構の' + staff + 'でございます。\n\n' +
           visitDate + 'に実施いたしました訪問指導の記録票を添付にてお送りいたします。\n' +
@@ -128,7 +149,7 @@ if (data.type === 'getDb') {
           '公益社団法人さくら研修機構\n' +
           staff;
 
-        MailApp.sendEmail({
+        var mailOptions = {
           to: data.contactEmail,
           bcc: 'miyatake@sakura-training.jp,office@sakura-training.jp',
           name: 'さくら研修機構総務部',
@@ -136,8 +157,13 @@ if (data.type === 'getDb') {
           subject: subject,
           body: body,
           attachments: [pdfBlob]
-        });
-        mailResult = 'sent';
+        };
+        if (ccList.length > 0) {
+          mailOptions.cc = ccList.map(function(c) { return c.email; }).join(',');
+        }
+
+        MailApp.sendEmail(mailOptions);
+        mailResult = 'sent' + (ccList.length > 0 ? ' (cc:' + ccList.length + ')' : '');
       } catch (mailErr) {
         mailResult = 'error: ' + mailErr.toString();
       }

@@ -358,6 +358,31 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
       <div id="contactInfo" style="font-size:10px;color:#a07080;text-align:right;display:none"></div>
     </div>
   </div>
+
+  <!-- CC担当者（任意・2名目3名目） -->
+  <div class="section" id="ccSection">
+    <div class="sec-title"><span class="icon">✉️</span>CC送信先（任意・最大2名追加）</div>
+    <div class="field-row">
+      <div class="field">
+        <label>CC担当者2　氏名</label>
+        <input type="text" id="cc2Name" placeholder="（任意）氏名">
+      </div>
+      <div class="field">
+        <label>CC担当者2　メールアドレス</label>
+        <input type="email" id="cc2Email" placeholder="（任意）メールアドレス">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>CC担当者3　氏名</label>
+        <input type="text" id="cc3Name" placeholder="（任意）氏名">
+      </div>
+      <div class="field">
+        <label>CC担当者3　メールアドレス</label>
+        <input type="email" id="cc3Email" placeholder="（任意）メールアドレス">
+      </div>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -466,6 +491,11 @@ function onCompanyChange() {
   const ci = document.getElementById('contactInfo');
   if (co) { ci.style.display = ''; ci.textContent = '宛先：' + co.contactName + ' 様　' + co.contactEmail; }
   else { ci.style.display = 'none'; ci.textContent = ''; }
+  // 企業切替時はCC担当者欄をクリア（前企業の入力が残らないようにする）
+  ['cc2Name', 'cc2Email', 'cc3Name', 'cc3Email'].forEach(id2 => {
+    const el = document.getElementById(id2);
+    if (el) el.value = '';
+  });
   // 下書きボタン表示・下書き読み込み
   const dsb = document.getElementById('draftSaveBtn');
   if (co) {
@@ -825,6 +855,12 @@ function resetForm() {
   // 下書きバナー非表示
   document.getElementById('draftBanner').style.display = 'none';
   document.getElementById('staffDraftBanner').style.display = 'none';
+
+  // CC担当者欄クリア
+  ['cc2Name', 'cc2Email', 'cc3Name', 'cc3Email'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 }
 
 
@@ -1172,6 +1208,10 @@ function saveRecord() {
     company: selectedCompany?.name || '',
     contactName: selectedCompany?.contactName || '',
     contactEmail: selectedCompany?.contactEmail || '',
+    cc2Name:  document.getElementById('cc2Name').value.trim(),
+    cc2Email: document.getElementById('cc2Email').value.trim(),
+    cc3Name:  document.getElementById('cc3Name').value.trim(),
+    cc3Email: document.getElementById('cc3Email').value.trim(),
     staff: document.getElementById('staffSelect').value,
     interviewMode: document.getElementById('traineeSection').classList.contains('show') ? 'あり' : 'なし',
     trainees: rows.map(r => {
