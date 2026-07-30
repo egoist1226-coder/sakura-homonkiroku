@@ -38,8 +38,8 @@
         },
         {
           "name": "TRAN THI DIEU",
-          "certNo": "認2401001594",
-          "grade": "技能実習2号",
+          "certNo": "認2601003194",
+          "grade": "技能実習3号",
           "nationality": "ベトナム",
           "gender": "女",
           "birthDate": "1997年06月10日",
@@ -773,6 +773,27 @@
           "birthDate": "2005年05月05日",
           "cardNo": "UH72614275EA",
           "residenceExpiry": "2026年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        }
+      ]
+    },
+    {
+      "id": "社会福祉法人松寿苑",
+      "name": "社会福祉法人松寿苑",
+      "contactName": "",
+      "contactEmail": "",
+      "contacts": [],
+      "trainees": [
+        {
+          "name": "ABAN CHAINE LUNCIDO",
+          "certNo": "認2508036145",
+          "grade": "技能実習3号",
+          "nationality": "フィリピン",
+          "gender": "女",
+          "birthDate": "1994年01月11日",
+          "cardNo": "LJ16863862EA",
+          "residenceExpiry": "2026年10月03日",
           "applicationDate": "",
           "applicationType": ""
         }
