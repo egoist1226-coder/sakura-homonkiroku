@@ -5,6 +5,12 @@
       "name": "北海道麦酒醸造株式会社",
       "contactName": "戸田　貴",
       "contactEmail": "toda@hokkaidobeer.com",
+      "contacts": [
+        {
+          "name": "戸田　貴",
+          "email": "toda@hokkaidobeer.com"
+        }
+      ],
       "trainees": [
         {
           "name": "LE THI HOAI",
@@ -97,6 +103,12 @@
       "name": "株式会社協栄",
       "contactName": "大山　弘幸",
       "contactEmail": "h.oyama@kyoei-inc.jp",
+      "contacts": [
+        {
+          "name": "大山　弘幸",
+          "email": "h.oyama@kyoei-inc.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "LE VAN THONG",
@@ -177,6 +189,12 @@
       "name": "株式会社マーミヤ",
       "contactName": "新垣　亜里沙",
       "contactEmail": "arisa@marmiya.com",
+      "contacts": [
+        {
+          "name": "新垣　亜里沙",
+          "email": "arisa@marmiya.com"
+        }
+      ],
       "trainees": [
         {
           "name": "NI NI HLAING",
@@ -197,6 +215,12 @@
       "name": "瀨塗工業株式会社",
       "contactName": "瀨底　佑太",
       "contactEmail": "setokougyou.sesoko@gmail.com",
+      "contacts": [
+        {
+          "name": "瀨底　佑太",
+          "email": "setokougyou.sesoko@gmail.com"
+        }
+      ],
       "trainees": [
         {
           "name": "MUHAMMAD KHOERUL MUSTAQIM",
@@ -253,6 +277,12 @@
       "name": "若狹建設工業株式会社",
       "contactName": "若狹　博美",
       "contactEmail": "wakasa.h@wakasa-const.co.jp",
+      "contacts": [
+        {
+          "name": "若狹　博美",
+          "email": "wakasa.h@wakasa-const.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "PHAN VAN VIET",
@@ -321,6 +351,7 @@
       "name": "社会福祉法人丹後福祉会",
       "contactName": "",
       "contactEmail": "",
+      "contacts": [],
       "trainees": [
         {
           "name": "CERACAS SHYNA AQUINO",
@@ -341,6 +372,7 @@
       "name": "株式会社ウイルバーン商事",
       "contactName": "",
       "contactEmail": "",
+      "contacts": [],
       "trainees": [
         {
           "name": "HLWAN WAI AUNG",
@@ -361,6 +393,12 @@
       "name": "医療法人財団良心会",
       "contactName": "原　陽一",
       "contactEmail": "youichi-hara@narikidai.jp",
+      "contacts": [
+        {
+          "name": "原　陽一",
+          "email": "youichi-hara@narikidai.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "NASANTOGTOKH OTGONZAYA",
@@ -453,6 +491,12 @@
       "name": "株式会社翔陽",
       "contactName": "吉田　和寛",
       "contactEmail": "y.kazuhiro@syoyo.co.jp",
+      "contacts": [
+        {
+          "name": "吉田　和寛",
+          "email": "y.kazuhiro@syoyo.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "MOLLA MD FAYSAL",
@@ -581,6 +625,12 @@
       "name": "医療法人社団久遠会",
       "contactName": "伏見　和博",
       "contactEmail": "k.fushimi@ntcc.or.jp",
+      "contacts": [
+        {
+          "name": "伏見　和博",
+          "email": "k.fushimi@ntcc.or.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "BAYARTSETSEG DULGUUN",
@@ -625,6 +675,12 @@
       "name": "株式会社メッツ",
       "contactName": "松原　隆太",
       "contactEmail": "r.m@earthwork.co.jp",
+      "contacts": [
+        {
+          "name": "松原　隆太",
+          "email": "r.m@earthwork.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "ZAW MYO HEIN",
@@ -645,11 +701,25 @@
       "name": "株式会社Orchester",
       "contactName": "宮本　仁",
       "contactEmail": "miyamoto@orchester.co.jp",
+      "contacts": [
+        {
+          "name": "宮本　仁",
+          "email": "miyamoto@orchester.co.jp"
+        },
+        {
+          "name": "飯塚　喜世子",
+          "email": "joymeshi@orchester.co.jp"
+        },
+        {
+          "name": "アマル　マンドゥール",
+          "email": "amar@orchester.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "AYE PYAE PHYO",
           "certNo": "認2504048342",
-          "grade": "",
+          "grade": "技能実習2号",
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1998年06月07日",
@@ -661,7 +731,7 @@
         {
           "name": "KHIN WINE",
           "certNo": "認2504048343",
-          "grade": "",
+          "grade": "技能実習2号",
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "2003年10月09日",
@@ -673,7 +743,7 @@
         {
           "name": "NAN EI SAN",
           "certNo": "認2504048344",
-          "grade": "",
+          "grade": "技能実習2号",
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1996年06月16日",
@@ -685,7 +755,7 @@
         {
           "name": "SU THET MON",
           "certNo": "認2504048345",
-          "grade": "",
+          "grade": "技能実習2号",
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1998年06月02日",
@@ -697,7 +767,7 @@
         {
           "name": "YU WADI KHAING",
           "certNo": "認2504048346",
-          "grade": "",
+          "grade": "技能実習2号",
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "2005年05月05日",

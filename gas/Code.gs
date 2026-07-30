@@ -115,24 +115,20 @@ if (data.type === 'getDb') {
         var nextVisit = data.nextVisit ? data.nextVisit.trim() : '未設定';
         var staff     = data.staff || 'さくら研修機構';
 
-        // ── CC担当者（2名目・3名目）の厳密なNullチェック ──
+        // ── CC担当者（DB登録済み担当者2人目以降＋手動追加分）の厳密なNullチェック ──
         // 氏名・メールアドレスの両方が入力されている場合のみ有効なCC対象として扱う
         var ccList = [];
-        [
-          { name: data.cc2Name, email: data.cc2Email },
-          { name: data.cc3Name, email: data.cc3Email }
-        ].forEach(function(c) {
-          var n = (c.name  || '').trim();
-          var e = (c.email || '').trim();
+        (data.ccList || []).forEach(function(c) {
+          var n = ((c && c.name)  || '').trim();
+          var e = ((c && c.email) || '').trim();
           if (n && e && e.indexOf('@') > -1) ccList.push({ name: n, email: e });
         });
 
-        // ── CC宛名テキストの生成（0名/1名/2名で分岐、不自然な空白・カンマを出さない） ──
+        // ── CC宛名テキストの生成（0名〜N名に対応、不自然な空白・カンマを出さない） ──
         var ccSalutation = '';
-        if (ccList.length === 2) {
-          ccSalutation = '（ＣＣ：' + ccList[0].name + 'さま、' + ccList[1].name + 'さま）\n';
-        } else if (ccList.length === 1) {
-          ccSalutation = '（ＣＣ：' + ccList[0].name + 'さま）\n';
+        if (ccList.length > 0) {
+          var ccNames = ccList.map(function(c) { return c.name + 'さま'; }).join('、');
+          ccSalutation = '（ＣＣ：' + ccNames + '）\n';
         }
 
         var subject = '訪問指導記録票のご送付（' + data.company + '）';

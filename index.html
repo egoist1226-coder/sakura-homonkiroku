@@ -52,6 +52,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#e890a8;backgr
 .check-item:hover{background:#fdf0f3}
 .check-item input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#d07090;flex-shrink:0}
 .check-item span{font-size:12.5px;line-height:1.4}
+.cc-block{border:1.5px solid #fad5e0;border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fffbfc}
+.cc-block.disabled-cc{opacity:.5}
+.cc-block .field-row{margin-bottom:8px}
+.cc-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;font-weight:600;color:#6a3045}
+.cc-toggle input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#d07090;flex-shrink:0}
+.cc-to-info{font-size:11px;font-weight:700;color:#c06080;margin-bottom:8px;padding:6px 10px;background:#fdf0f3;border-radius:6px}
 .acc-detail{display:none;grid-column:1/-1;padding:8px 10px;background:#fdf5f8;border-radius:8px;border:1px solid #fac8d8;margin-top:2px}
 .acc-detail.show{display:block}
 .radio-group{display:flex;gap:10px;flex-wrap:wrap}
@@ -359,27 +365,42 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     </div>
   </div>
 
-  <!-- CC担当者（任意・2名目3名目） -->
+  <!-- 送信先担当者（1名目=To必須、2・3名目=Cc・チェックボックスで送信可否を制御） -->
   <div class="section" id="ccSection">
-    <div class="sec-title"><span class="icon">✉️</span>CC送信先（任意・最大2名追加）</div>
-    <div class="field-row">
-      <div class="field">
-        <label>CC担当者2　氏名</label>
-        <input type="text" id="cc2Name" placeholder="（任意）氏名">
-      </div>
-      <div class="field">
-        <label>CC担当者2　メールアドレス</label>
-        <input type="email" id="cc2Email" placeholder="（任意）メールアドレス">
+    <div class="sec-title"><span class="icon">✉️</span>送信先担当者</div>
+    <div class="cc-to-info" id="toContactInfo">宛先（To）：未選択</div>
+
+    <div class="cc-block" id="cc2Block">
+      <label class="cc-toggle">
+        <input type="checkbox" id="cc2Enabled" checked onchange="updateCcBlockState('cc2Enabled','cc2Block')">
+        <span>この担当者にCCメールを送信する（担当者2）</span>
+      </label>
+      <div class="field-row">
+        <div class="field">
+          <label>CC担当者2　氏名</label>
+          <input type="text" id="cc2Name" placeholder="（任意）氏名">
+        </div>
+        <div class="field">
+          <label>CC担当者2　メールアドレス</label>
+          <input type="email" id="cc2Email" placeholder="（任意）メールアドレス">
+        </div>
       </div>
     </div>
-    <div class="field-row">
-      <div class="field">
-        <label>CC担当者3　氏名</label>
-        <input type="text" id="cc3Name" placeholder="（任意）氏名">
-      </div>
-      <div class="field">
-        <label>CC担当者3　メールアドレス</label>
-        <input type="email" id="cc3Email" placeholder="（任意）メールアドレス">
+
+    <div class="cc-block" id="cc3Block">
+      <label class="cc-toggle">
+        <input type="checkbox" id="cc3Enabled" checked onchange="updateCcBlockState('cc3Enabled','cc3Block')">
+        <span>この担当者にCCメールを送信する（担当者3）</span>
+      </label>
+      <div class="field-row">
+        <div class="field">
+          <label>CC担当者3　氏名</label>
+          <input type="text" id="cc3Name" placeholder="（任意）氏名">
+        </div>
+        <div class="field">
+          <label>CC担当者3　メールアドレス</label>
+          <input type="email" id="cc3Email" placeholder="（任意）メールアドレス">
+        </div>
       </div>
     </div>
   </div>
@@ -477,6 +498,48 @@ function populateSelects() {
 }
 // populateSelects() はGoogle認証後にinitApp()から呼ぶ
 
+// 企業の登録担当者（contacts配列）を取得。旧形式DB（contactName/contactEmailのみ）にもフォールバック対応。
+function getCompanyContacts(co) {
+  if (!co) return [];
+  if (Array.isArray(co.contacts) && co.contacts.length) return co.contacts;
+  if (co.contactName || co.contactEmail) return [{ name: co.contactName || '', email: co.contactEmail || '' }];
+  return [];
+}
+
+// To（1名目・必須）とCc（2・3名目・チェックボックスで送信可否を制御）欄を企業データで自動反映する
+function applyCompanyContacts(co) {
+  const contacts = getCompanyContacts(co);
+  const toInfo = document.getElementById('toContactInfo');
+  if (contacts[0]) {
+    toInfo.textContent = '宛先（To）：' + (contacts[0].name || '（氏名未登録）') + ' 様　' + (contacts[0].email || '（メール未登録）');
+  } else {
+    toInfo.textContent = '宛先（To）：未選択';
+  }
+
+  [
+    { block: 'cc2Block', name: 'cc2Name', email: 'cc2Email', enabled: 'cc2Enabled', contact: contacts[1] },
+    { block: 'cc3Block', name: 'cc3Name', email: 'cc3Email', enabled: 'cc3Enabled', contact: contacts[2] },
+  ].forEach(cfg => {
+    const nameEl = document.getElementById(cfg.name);
+    const emailEl = document.getElementById(cfg.email);
+    const enabledEl = document.getElementById(cfg.enabled);
+    const blockEl = document.getElementById(cfg.block);
+    nameEl.value = cfg.contact ? (cfg.contact.name || '') : '';
+    emailEl.value = cfg.contact ? (cfg.contact.email || '') : '';
+    // デフォルトは「チェックあり（送信する）」
+    enabledEl.checked = true;
+    updateCcBlockState(cfg.enabled, cfg.block);
+  });
+}
+
+// チェックボックスON/OFFに応じてブロックの見た目（有効/無効）を切り替える
+function updateCcBlockState(checkboxId, blockId) {
+  const cb = document.getElementById(checkboxId);
+  const block = document.getElementById(blockId);
+  if (!cb || !block) return;
+  block.classList.toggle('disabled-cc', !cb.checked);
+}
+
 function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
   if (id) startSaveEventPolling(id); else stopSaveEventPolling();
@@ -491,11 +554,8 @@ function onCompanyChange() {
   const ci = document.getElementById('contactInfo');
   if (co) { ci.style.display = ''; ci.textContent = '宛先：' + co.contactName + ' 様　' + co.contactEmail; }
   else { ci.style.display = 'none'; ci.textContent = ''; }
-  // 企業切替時はCC担当者欄をクリア（前企業の入力が残らないようにする）
-  ['cc2Name', 'cc2Email', 'cc3Name', 'cc3Email'].forEach(id2 => {
-    const el = document.getElementById(id2);
-    if (el) el.value = '';
-  });
+  // 送信先担当者欄（To=1名目／Cc=2・3名目）をDBの担当者リストで自動反映
+  applyCompanyContacts(co);
   // 下書きボタン表示・下書き読み込み
   const dsb = document.getElementById('draftSaveBtn');
   if (co) {
@@ -856,11 +916,16 @@ function resetForm() {
   document.getElementById('draftBanner').style.display = 'none';
   document.getElementById('staffDraftBanner').style.display = 'none';
 
-  // CC担当者欄クリア
+  // 送信先担当者欄クリア（企業未選択状態に戻すため、チェックはデフォルトON・ブロックは有効表示に戻す）
   ['cc2Name', 'cc2Email', 'cc3Name', 'cc3Email'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  document.getElementById('toContactInfo').textContent = '宛先（To）：未選択';
+  document.getElementById('cc2Enabled').checked = true;
+  document.getElementById('cc3Enabled').checked = true;
+  updateCcBlockState('cc2Enabled', 'cc2Block');
+  updateCcBlockState('cc3Enabled', 'cc3Block');
 }
 
 
@@ -1158,9 +1223,26 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') _checkSaveEvent();
 });
 
+// チェックボックスがONの場合のみ、当該CC担当者の氏名・メールアドレスを返す。
+// OFFの場合は入力値があっても空文字を返し、送信対象・宛名生成の両方から除外する。
+function getEnabledCc(nameId, emailId, enabledId) {
+  const enabled = document.getElementById(enabledId).checked;
+  if (!enabled) return { name: '', email: '' };
+  return {
+    name:  document.getElementById(nameId).value.trim(),
+    email: document.getElementById(emailId).value.trim(),
+  };
+}
+
 function saveRecord() {
   const selectedCompany = DB.companies.find(c => c.id === document.getElementById('companySelect').value);
-  if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先：${selectedCompany?.contactEmail || '（メールなし）'}\n\nこの内容で保存・送信してよろしいですか？`)) return;
+  // cc2/cc3はapplyCompanyContacts()により企業選択時点でDB登録担当者から自動入力済み
+  // （チェックボックスON＝送信対象。都度入力は不要、必要な場合のみ手動で書き換え・OFF可）
+  const cc2 = getEnabledCc('cc2Name', 'cc2Email', 'cc2Enabled');
+  const cc3 = getEnabledCc('cc3Name', 'cc3Email', 'cc3Enabled');
+  const ccMerged = [cc2, cc3].filter(c => c.name && c.email);
+  const ccPreview = ccMerged.map(c => c.name + '様').join('、');
+  if (!confirm(`【送信確認】\n\n送信先：${selectedCompany?.name || '未選択'} さま\n宛先（To）：${selectedCompany?.contactEmail || '（メールなし）'}\n${ccPreview ? 'CC：' + ccPreview + '\n' : ''}\nこの内容で保存・送信してよろしいですか？`)) return;
 
   const btn = document.getElementById('btnSave');
   btn.textContent = '最新情報を確認中…';
@@ -1208,10 +1290,7 @@ function saveRecord() {
     company: selectedCompany?.name || '',
     contactName: selectedCompany?.contactName || '',
     contactEmail: selectedCompany?.contactEmail || '',
-    cc2Name:  document.getElementById('cc2Name').value.trim(),
-    cc2Email: document.getElementById('cc2Email').value.trim(),
-    cc3Name:  document.getElementById('cc3Name').value.trim(),
-    cc3Email: document.getElementById('cc3Email').value.trim(),
+    ccList: ccMerged, // [{name, email}, ...] DB登録担当者(2・3人目)から自動入力済み。チェックOFF分は除外済み
     staff: document.getElementById('staffSelect').value,
     interviewMode: document.getElementById('traineeSection').classList.contains('show') ? 'あり' : 'なし',
     trainees: rows.map(r => {
