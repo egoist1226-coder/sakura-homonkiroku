@@ -8,7 +8,8 @@ var ROOT_FOLDER_ID = '1GjarIC37LEN-kcRoxBiV3MELg1dWlrt-'; // さくら研修機�
 var STAFF_CONFIG = {
   'miyatake@sakura-training.jp':   { name: '宮武　薫',  role: 'admin' },
   'matsushima@sakura-training.jp': { name: '松島　妙子', role: 'admin' },
-  'honbu.soumu@sakura-training.jp': { name: '総務部',    role: 'admin' }
+  'honbu.soumu@sakura-training.jp': { name: '総務部',    role: 'admin' },
+  'philippine@sakura-training.jp': { name: '藤野　伸恵', role: 'staff', companies: ['tango_fukushikai', '社会福祉法人松寿苑'] }
 };
 var DB_FILE_NAME = 'sakura_db.json';
 var SYNC_SECRET  = 'sakura2026sync'; // sync_homonkiroku.py と共有

@@ -293,10 +293,6 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     <div class="field">
       <div class="next-visit-group">
         <input type="date" id="nextDate" class="empty" style="width:150px;min-width:150px;max-width:150px;flex:0 0 150px">
-        <label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap;flex:0 0 auto">
-          <input type="checkbox" id="nextDateUndecided" onchange="onNextVisitUndecidedChange()">
-          日程未定
-        </label>
         <span class="day-badge" id="dayBadge" style="flex:0 0 auto">―</span>
         <select id="nextTime" class="empty" onchange="onNextVisitChange()" style="width:110px;min-width:110px;max-width:110px;flex:0 0 110px">
           <option value="">時刻</option>
@@ -312,6 +308,10 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
           <option value="17:00">17:00</option><option value="17:30">17:30</option>
           <option value="18:00">18:00</option>
         </select>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap;flex:0 0 auto">
+          <input type="checkbox" id="nextDateUndecided" onchange="onNextVisitUndecidedChange()">
+          日程未定
+        </label>
         <button class="btn-past-pdf" onclick="openPdfList()">📂 過去の記録</button>
       </div>
       <div class="warn-msg show" id="nextVisitWarn">⚠ 次回訪問予定日時を入力しないと署名・保存できません</div>
@@ -490,6 +490,21 @@ let signEnabled = false;
 const MAX = 5;
 const DAYS = ['（日）','（月）','（火）','（水）','（木）','（金）','（土）'];
 
+// 改修テスト用の架空企業をDBに注入（let DB本体は自動生成のため編集せず、読込直後にランタイムで追加）
+function injectTestCompany() {
+  if (!DB || !Array.isArray(DB.companies)) return;
+  const TEST_ID = 'test_kaishu';
+  if (DB.companies.some(c => c.id === TEST_ID)) return; // 二重追加防止
+  DB.companies.push({
+    id: TEST_ID,
+    name: '（改修テスト用）',
+    contactName: 'テスト受信者宮武薫',
+    contactEmail: 'egoist1226@gmail.com',
+    contacts: [{ name: 'テスト受信者宮武薫', email: 'egoist1226@gmail.com' }],
+    trainees: []
+  });
+}
+
 function populateSelects() {
   const cs = document.getElementById('companySelect');
   while (cs.options.length > 1) cs.remove(1);
@@ -542,6 +557,28 @@ function applyCompanyContacts(co) {
   });
 }
 
+// 特定企業限定で選択可能になる担当者（DB.staffには含めず、対象企業選択時のみ動的に追加）
+const RESTRICTED_STAFF = [
+  { name: '藤野　伸恵', companyIds: ['tango_fukushikai', '社会福祉法人松寿苑'] }
+];
+
+// 企業選択に応じて、企業限定担当者オプションを追加/削除する
+function updateRestrictedStaffOptions(co) {
+  const ss = document.getElementById('staffSelect');
+  RESTRICTED_STAFF.forEach(rs => {
+    const allowed = !!(co && rs.companyIds.includes(co.id));
+    let opt = Array.from(ss.options).find(o => o.value === rs.name);
+    if (allowed && !opt) {
+      opt = document.createElement('option');
+      opt.value = rs.name; opt.textContent = rs.name;
+      ss.appendChild(opt);
+    } else if (!allowed && opt) {
+      if (ss.value === rs.name) ss.value = ''; // 選択中に対象外企業へ切替→選択解除
+      opt.remove();
+    }
+  });
+}
+
 // チェックボックスON/OFFに応じてブロックの見た目（有効/無効）を切り替える
 function updateCcBlockState(checkboxId, blockId) {
   const cb = document.getElementById(checkboxId);
@@ -566,6 +603,8 @@ function onCompanyChange() {
   else { ci.style.display = 'none'; ci.textContent = ''; }
   // 送信先担当者欄（To=1名目／Cc=2・3名目）をDBの担当者リストで自動反映
   applyCompanyContacts(co);
+  // 企業限定の訪問担当者（例：藤野　伸恵）の選択可否を切り替え
+  updateRestrictedStaffOptions(co);
   // 下書きボタン表示・下書き読み込み
   const dsb = document.getElementById('draftSaveBtn');
   if (co) {
@@ -859,9 +898,13 @@ function onNextVisitChange() {
 // 「日程未定」チェックボックスON/OFF時：日付欄の活性/非活性を切り替え、署名可否を再判定
 function onNextVisitUndecidedChange() {
   const date = document.getElementById('nextDate');
+  const time = document.getElementById('nextTime');
   const undecided = document.getElementById('nextDateUndecided').checked;
   date.disabled = undecided;
-  if (undecided) { date.value = ''; date.classList.remove('filled'); date.classList.add('empty'); }
+  time.disabled = undecided;
+  if (undecided) {
+    date.value = ''; date.classList.remove('filled'); date.classList.add('empty');
+  }
   onNextVisitChange();
 }
 
@@ -912,6 +955,7 @@ function resetForm() {
   // 企業・担当者プルダウンをクリア
   document.getElementById('companySelect').value = '';
   document.getElementById('staffSelect').value = '';
+  updateRestrictedStaffOptions(null); // 企業限定担当者の選択肢もクリア
   currentTrainees = [];
 
   // 面談実習生リストクリア
@@ -925,6 +969,7 @@ function resetForm() {
   document.getElementById('nextDate').value = '';
   document.getElementById('nextDate').classList.add('empty');
   document.getElementById('nextDate').disabled = false;
+  document.getElementById('nextTime').disabled = false;
   document.getElementById('nextDateUndecided').checked = false;
   document.getElementById('nextTime').value = '13:00';
   onNextVisitChange();
@@ -1104,6 +1149,7 @@ function handleCredentialResponse(response) {
         return;
       }
       DB = data.db;
+      injectTestCompany();
       currentUser = data.user;
       document.getElementById('userBarName').textContent = data.user.name;
       document.getElementById('userBar').style.display = 'flex';
@@ -1136,6 +1182,7 @@ function refreshDb() {
         const prevCompany = document.getElementById('companySelect').value;
         const prevStaff   = document.getElementById('staffSelect').value;
         DB = data.db;
+        injectTestCompany();
         populateSelects();
         // 選択状態を復元
         if (prevCompany) {
