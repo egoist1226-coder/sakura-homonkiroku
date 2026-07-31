@@ -45,8 +45,8 @@
           "birthDate": "1997年06月10日",
           "cardNo": "UH40401271EA",
           "residenceExpiry": "2026年08月15日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月30日",
+          "applicationType": "在留資格変更許可申請"
         },
         {
           "name": "PHAN VAN PHUC",
@@ -794,8 +794,8 @@
           "birthDate": "1994年01月11日",
           "cardNo": "LJ16863862EA",
           "residenceExpiry": "2026年10月03日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "7月30日",
+          "applicationType": "在留資格変更許可申請"
         }
       ]
     }
