@@ -293,6 +293,10 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
     <div class="field">
       <div class="next-visit-group">
         <input type="date" id="nextDate" class="empty" style="width:150px;min-width:150px;max-width:150px;flex:0 0 150px">
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap;flex:0 0 auto">
+          <input type="checkbox" id="nextDateUndecided" onchange="onNextVisitUndecidedChange()">
+          日程未定
+        </label>
         <span class="day-badge" id="dayBadge" style="flex:0 0 auto">―</span>
         <select id="nextTime" class="empty" onchange="onNextVisitChange()" style="width:110px;min-width:110px;max-width:110px;flex:0 0 110px">
           <option value="">時刻</option>
@@ -366,40 +370,46 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   </div>
 
   <!-- 送信先担当者（1名目=To必須、2・3名目=Cc・チェックボックスで送信可否を制御） -->
+  <!-- アコーディオン：初期状態は折りたたみ（非表示） -->
   <div class="section" id="ccSection">
-    <div class="sec-title"><span class="icon">✉️</span>送信先担当者</div>
-    <div class="cc-to-info" id="toContactInfo">宛先（To）：未選択</div>
+    <div class="sec-title" id="ccSectionToggle" onclick="toggleCcSection()" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
+      <span><span class="icon">✉️</span>送信先担当者</span>
+      <span id="ccSectionArrow" style="font-size:11px;color:#c06080">▶ 開く</span>
+    </div>
+    <div id="ccSectionBody" style="display:none">
+      <div class="cc-to-info" id="toContactInfo">宛先（To）：未選択</div>
 
-    <div class="cc-block" id="cc2Block">
-      <label class="cc-toggle">
-        <input type="checkbox" id="cc2Enabled" checked onchange="updateCcBlockState('cc2Enabled','cc2Block')">
-        <span>この担当者にCCメールを送信する（担当者2）</span>
-      </label>
-      <div class="field-row">
-        <div class="field">
-          <label>CC担当者2　氏名</label>
-          <input type="text" id="cc2Name" placeholder="（任意）氏名">
-        </div>
-        <div class="field">
-          <label>CC担当者2　メールアドレス</label>
-          <input type="email" id="cc2Email" placeholder="（任意）メールアドレス">
+      <div class="cc-block" id="cc2Block">
+        <label class="cc-toggle">
+          <input type="checkbox" id="cc2Enabled" checked onchange="updateCcBlockState('cc2Enabled','cc2Block')">
+          <span>この担当者にCCメールを送信する（担当者2）</span>
+        </label>
+        <div class="field-row">
+          <div class="field">
+            <label>CC担当者2　氏名</label>
+            <input type="text" id="cc2Name" placeholder="（任意）氏名">
+          </div>
+          <div class="field">
+            <label>CC担当者2　メールアドレス</label>
+            <input type="email" id="cc2Email" placeholder="（任意）メールアドレス">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="cc-block" id="cc3Block">
-      <label class="cc-toggle">
-        <input type="checkbox" id="cc3Enabled" checked onchange="updateCcBlockState('cc3Enabled','cc3Block')">
-        <span>この担当者にCCメールを送信する（担当者3）</span>
-      </label>
-      <div class="field-row">
-        <div class="field">
-          <label>CC担当者3　氏名</label>
-          <input type="text" id="cc3Name" placeholder="（任意）氏名">
-        </div>
-        <div class="field">
-          <label>CC担当者3　メールアドレス</label>
-          <input type="email" id="cc3Email" placeholder="（任意）メールアドレス">
+      <div class="cc-block" id="cc3Block">
+        <label class="cc-toggle">
+          <input type="checkbox" id="cc3Enabled" checked onchange="updateCcBlockState('cc3Enabled','cc3Block')">
+          <span>この担当者にCCメールを送信する（担当者3）</span>
+        </label>
+        <div class="field-row">
+          <div class="field">
+            <label>CC担当者3　氏名</label>
+            <input type="text" id="cc3Name" placeholder="（任意）氏名">
+          </div>
+          <div class="field">
+            <label>CC担当者3　メールアドレス</label>
+            <input type="email" id="cc3Email" placeholder="（任意）メールアドレス">
+          </div>
         </div>
       </div>
     </div>
@@ -814,17 +824,28 @@ function updateAddBtn() {
   b.textContent = rows.length >= limit ? `全${limit}名を選択済` : `＋ 面談した実習生を追加（残り${limit - rows.length}名）`;
 }
 
+// ── 送信先担当者セクション（アコーディオン開閉） ──
+function toggleCcSection() {
+  const body = document.getElementById('ccSectionBody');
+  const arrow = document.getElementById('ccSectionArrow');
+  const opening = body.style.display === 'none';
+  body.style.display = opening ? '' : 'none';
+  arrow.textContent = opening ? '▼ 閉じる' : '▶ 開く';
+}
+
 // ── 次回訪問 ──
 function onNextVisitChange() {
   const date = document.getElementById('nextDate');
   const time = document.getElementById('nextTime');
+  const undecided = document.getElementById('nextDateUndecided').checked;
   const badge = document.getElementById('dayBadge');
-  if (date.value) {
+  if (date.value && !undecided) {
     const dow = new Date(date.value + 'T00:00:00').getDay();
     badge.textContent = DAYS[dow];
     badge.className = 'day-badge filled' + (dow === 6 ? ' sat' : dow === 0 ? ' sun' : '');
   } else { badge.textContent = '―'; badge.className = 'day-badge'; }
-  const filled = date.value !== '' && time.value !== '';
+  // 署名有効化条件：日付・時刻が両方入力済み、または「日程未定」チェック済み（OR条件）
+  const filled = (date.value !== '' && time.value !== '') || undecided;
   date.classList.toggle('empty', !date.value); date.classList.toggle('filled', !!date.value);
   time.classList.toggle('empty', !time.value); time.classList.toggle('filled', !!time.value);
   document.getElementById('nextVisitWarn').classList.toggle('show', !filled);
@@ -833,6 +854,15 @@ function onNextVisitChange() {
   document.getElementById('btnSave').classList.toggle('disabled', !filled);
   document.getElementById('submitWarn').style.display = filled ? 'none' : '';
   signEnabled = filled;
+}
+
+// 「日程未定」チェックボックスON/OFF時：日付欄の活性/非活性を切り替え、署名可否を再判定
+function onNextVisitUndecidedChange() {
+  const date = document.getElementById('nextDate');
+  const undecided = document.getElementById('nextDateUndecided').checked;
+  date.disabled = undecided;
+  if (undecided) { date.value = ''; date.classList.remove('filled'); date.classList.add('empty'); }
+  onNextVisitChange();
 }
 
 // iPad Safari でも確実に発火するようJSで直接リスナー登録
@@ -894,6 +924,8 @@ function resetForm() {
   // 次回訪問日時クリア → ロック状態に戻す
   document.getElementById('nextDate').value = '';
   document.getElementById('nextDate').classList.add('empty');
+  document.getElementById('nextDate').disabled = false;
+  document.getElementById('nextDateUndecided').checked = false;
   document.getElementById('nextTime').value = '13:00';
   onNextVisitChange();
 
@@ -1308,7 +1340,9 @@ function saveRecord() {
     reportNote: document.getElementById('reportNote').value,
     sokenText: document.getElementById('sokenText').value,
     signatureImage: document.getElementById('signCanvas').toDataURL('image/png'),
-    nextVisit: document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
+    nextVisit: document.getElementById('nextDateUndecided').checked
+      ? '未定'
+      : document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
     signTimestamp: document.getElementById('timestamp').textContent,
     photos: photos.map(p => p.dataUrl)
   };

@@ -189,6 +189,7 @@ if (data.type === 'getDb') {
 function createCalendarEvent(data) {
   var nextVisit = data.nextVisit ? data.nextVisit.trim() : '';
   if (!nextVisit || nextVisit.replace(/\s/g,'') === '') return 'skipped (no date)';
+  if (nextVisit === '未定') return 'skipped (undecided)';
 
   // "2026-07-15 10:00" 形式をパース
   var parts = nextVisit.split(' ');
