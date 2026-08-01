@@ -798,6 +798,39 @@
           "applicationType": "在留資格変更許可申請"
         }
       ]
+    },
+    {
+      "id": "株式会社松原組",
+      "name": "株式会社松原組",
+      "contactName": "",
+      "contactEmail": "",
+      "contacts": [],
+      "trainees": [
+        {
+          "name": "KYAW THU AUNG",
+          "certNo": "認2408015819",
+          "grade": "技能実習2号",
+          "nationality": "ミャンマー",
+          "gender": "男",
+          "birthDate": "1986年05月25日",
+          "cardNo": "UH81555237EA",
+          "residenceExpiry": "2026年10月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        },
+        {
+          "name": "MIN HTET",
+          "certNo": "認2408015820",
+          "grade": "技能実習2号",
+          "nationality": "ミャンマー",
+          "gender": "男",
+          "birthDate": "2003年11月15日",
+          "cardNo": "UH44533627EA",
+          "residenceExpiry": "2026年10月09日",
+          "applicationDate": "",
+          "applicationType": ""
+        }
+      ]
     }
   ],
   "staff": [
