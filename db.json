@@ -802,9 +802,14 @@
     {
       "id": "株式会社松原組",
       "name": "株式会社松原組",
-      "contactName": "",
-      "contactEmail": "",
-      "contacts": [],
+      "contactName": "松原　隆太",
+      "contactEmail": "r.m@earthwork.co.jp",
+      "contacts": [
+        {
+          "name": "松原　隆太",
+          "email": "r.m@earthwork.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "KYAW THU AUNG",
