@@ -1,4 +1,4 @@
-const CACHE = 'sakura-v17';
+const CACHE = 'sakura-v18';
 const ASSETS = [
   './db.json',
   './manifest.json'
@@ -17,6 +17,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // POST等（保存・下書き送信・GAS通信）はキャッシュ処理を一切挟まず素通りさせる。
+  // caches.match()がリクエストボディに触れると、iOS Safari等で後続のfetch()が
+  // 「Failed to fetch」で失敗する既知の問題があり、保存ボタンの通信エラーの原因になるため。
+  if (e.request.method !== 'GET') return;
+
   const url = new URL(e.request.url);
   // index.html は常にネットワーク優先（キャッシュは使わない）
   if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
