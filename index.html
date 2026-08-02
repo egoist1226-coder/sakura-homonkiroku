@@ -249,11 +249,11 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <div class="section">
     <div class="sec-title"><span class="icon">🌸</span>実地確認チェックリスト</div>
     <div class="check-grid">
-      <label class="check-item"><input type="checkbox"><span>技能実習日誌の作成確認</span></label>
-      <label class="check-item"><input type="checkbox"><span>認定計画履行状況・管理簿の確認</span></label>
-      <label class="check-item"><input type="checkbox"><span>訪問指導記録書への記入確認</span></label>
-      <label class="check-item"><input type="checkbox"><span>実習生との面談実施（3ヶ月に1度以上）</span></label>
-      <label class="check-item"><input type="checkbox"><span>実習生の自宅訪問（3ヶ月に1度以上）</span></label>
+      <label class="check-item"><input type="checkbox" id="ck0" onchange="autosaveState()"><span>技能実習日誌の作成確認</span></label>
+      <label class="check-item"><input type="checkbox" id="ck1" onchange="autosaveState()"><span>認定計画履行状況・管理簿の確認</span></label>
+      <label class="check-item"><input type="checkbox" id="ck2" onchange="autosaveState()"><span>訪問指導記録書への記入確認</span></label>
+      <label class="check-item"><input type="checkbox" id="ck3" onchange="autosaveState()"><span>実習生との面談実施（3ヶ月に1度以上）</span></label>
+      <label class="check-item"><input type="checkbox" id="ck4" onchange="autosaveState()"><span>実習生の自宅訪問（3ヶ月に1度以上）</span></label>
     </div>
   </div>
 
@@ -283,7 +283,11 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   <div class="section photo-section">
     <div class="sec-title"><span class="icon">📷</span>現場写真（備考）</div>
     <input type="file" id="photoInput" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotosSelected(event)">
-    <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
+    <input type="file" id="photoInputLibrary" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(event)">
+    <div style="display:flex;gap:8px">
+      <button class="photo-btn" onclick="document.getElementById('photoInput').click()">📷 写真を撮影・追加する</button>
+      <button class="photo-btn" onclick="document.getElementById('photoInputLibrary').click()">🖼️ 端末内の写真から選択</button>
+    </div>
     <div class="photo-thumbnails" id="photoThumbnails"></div>
   </div>
 
@@ -489,6 +493,121 @@ let rows = [];
 let signEnabled = false;
 const MAX = 5;
 const DAYS = ['（日）','（月）','（火）','（水）','（木）','（金）','（土）'];
+
+// ══════════════════════════════════════════════
+// 自動保存（画面リロード対策）：写真=IndexedDB／面談状態・チェックリスト=localStorage
+// 明示的な「保存と企業様へ送信」や下書き保存機能とは別枠で、入力途中のデータ消失を防ぐためのもの
+// ══════════════════════════════════════════════
+const AUTOSAVE_LS_KEY = 'sakura_homonkiroku_autosave_v1';
+const AUTOSAVE_DB_NAME = 'sakura_homonkiroku_autosave';
+const AUTOSAVE_STORE = 'photos';
+let _autosaveDbPromise = null;
+
+function openAutosaveDb() {
+  if (_autosaveDbPromise) return _autosaveDbPromise;
+  _autosaveDbPromise = new Promise((resolve, reject) => {
+    if (!window.indexedDB) { reject(new Error('IndexedDB unsupported')); return; }
+    const req = indexedDB.open(AUTOSAVE_DB_NAME, 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore(AUTOSAVE_STORE); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _autosaveDbPromise;
+}
+
+// 写真配列（Base64含む）をIndexedDBへ保存。localStorageは容量制限に触れやすいため使わない
+function autosavePhotos() {
+  openAutosaveDb().then(db => {
+    const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
+    tx.objectStore(AUTOSAVE_STORE).put(photos, 'current');
+  }).catch(() => {});
+}
+
+function loadAutosavedPhotos() {
+  return openAutosaveDb().then(db => new Promise((resolve) => {
+    const tx = db.transaction(AUTOSAVE_STORE, 'readonly');
+    const req = tx.objectStore(AUTOSAVE_STORE).get('current');
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]);
+  })).catch(() => []);
+}
+
+function clearAutosavedPhotos() {
+  openAutosaveDb().then(db => {
+    const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
+    tx.objectStore(AUTOSAVE_STORE).delete('current');
+  }).catch(() => {});
+}
+
+// 面談状態（面談あり/なし＋選択済み実習生）とチェックリストのON/OFF状態をlocalStorageへ保存
+function autosaveState() {
+  try {
+    const state = {
+      companyId: document.getElementById('companySelect')?.value || '',
+      staffName: document.getElementById('staffSelect')?.value || '',
+      interviewMode: document.getElementById('traineeSection')?.classList.contains('show') || false,
+      traineeNames: rows.map(r => r.select.value).filter(Boolean),
+      checks: [0,1,2,3,4].map(i => !!document.getElementById('ck'+i)?.checked),
+      savedAt: Date.now()
+    };
+    localStorage.setItem(AUTOSAVE_LS_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function clearAutosaveState() {
+  try { localStorage.removeItem(AUTOSAVE_LS_KEY); } catch (e) {}
+  clearAutosavedPhotos();
+}
+
+// ログイン直後・DB取得後に呼び出す。保存済みの状態があれば画面に復元する
+function restoreAutosaveIfAny() {
+  let raw;
+  try { raw = localStorage.getItem(AUTOSAVE_LS_KEY); } catch (e) { return; }
+  if (!raw) return;
+  let state;
+  try { state = JSON.parse(raw); } catch (e) { return; }
+  if (!state || !state.companyId) return;
+  const co = DB.companies.find(c => c.id === state.companyId);
+  if (!co) return; // 対象企業が現在の担当リストにない（権限外等）場合は復元しない
+
+  if (!confirm('前回入力途中のデータが見つかりました。復元しますか？\n（「キャンセル」を選ぶと破棄して新規入力になります）')) {
+    clearAutosaveState();
+    return;
+  }
+
+  document.getElementById('companySelect').value = state.companyId;
+  onCompanyChange();
+  if (state.staffName) document.getElementById('staffSelect').value = state.staffName;
+
+  // 面談状態＋選択済み実習生の復元
+  setInterview(!!state.interviewMode);
+  if (state.interviewMode && Array.isArray(state.traineeNames)) {
+    rows = []; document.getElementById('traineeList').innerHTML = '';
+    state.traineeNames.forEach(name => {
+      addTrainee();
+      const last = rows[rows.length - 1];
+      if (last) { last.select.value = name; onNameChange(rows.length - 1); }
+    });
+  }
+
+  // チェックリスト復元
+  if (Array.isArray(state.checks)) {
+    state.checks.forEach((v, i) => {
+      const el = document.getElementById('ck'+i);
+      if (el) el.checked = !!v;
+    });
+  }
+
+  // 写真復元（IndexedDBは非同期）
+  loadAutosavedPhotos().then(saved => {
+    if (Array.isArray(saved) && saved.length) {
+      photos = saved;
+      renderThumbnails();
+    }
+  });
+
+  showToast('↩️ 前回の入力内容を復元しました');
+}
 
 // 改修テスト用の架空企業をDBに注入（let DB本体は自動生成のため編集せず、読込直後にランタイムで追加）
 function injectTestCompany() {
@@ -805,6 +924,7 @@ function setInterview(mode) {
   document.getElementById('noBanner').classList.toggle('show', !mode);
   document.getElementById('traineeSection').classList.toggle('show', mode);
   if (mode && rows.length === 0 && currentTrainees.length > 0) addTrainee();
+  autosaveState();
 }
 
 function addTrainee() {
@@ -840,6 +960,7 @@ function onNameChange(idx) {
     if (i !== idx && r.select.value === v) { r.select.value = ''; r.autoDiv.textContent = '（氏名を選択すると自動入力）'; }
   });
   refreshDisabled();
+  autosaveState();
 }
 
 function removeTrainee(idx) {
@@ -847,6 +968,7 @@ function removeTrainee(idx) {
   rows.forEach((r, i) => { r.num.textContent = i + 1; });
   refreshDisabled(); updateAddBtn();
   if (rows.length === 0 && currentTrainees.length > 0) addTrainee();
+  autosaveState();
 }
 
 function refreshDisabled() {
@@ -1030,6 +1152,7 @@ function onPhotosSelected(e) {
       resizeImage(ev.target.result, 1000, 0.7, (resized) => {
         photos.push({ dataUrl: resized, name: file.name });
         renderThumbnails();
+        autosavePhotos();
       });
     };
     reader.readAsDataURL(file);
@@ -1067,7 +1190,7 @@ function renderThumbnails() {
     const img = document.createElement('img'); img.src = p.dataUrl;
     img.onclick = () => openLightbox(p.dataUrl);
     const del = document.createElement('button'); del.className = 'del-photo'; del.textContent = '✕';
-    del.onclick = (e) => { e.stopPropagation(); photos.splice(i, 1); renderThumbnails(); };
+    del.onclick = (e) => { e.stopPropagation(); photos.splice(i, 1); renderThumbnails(); autosavePhotos(); };
     wrap.appendChild(img); wrap.appendChild(del);
     container.appendChild(wrap);
   });
@@ -1160,6 +1283,7 @@ function handleCredentialResponse(response) {
       const match = Array.from(ss.options).find(o => o.value === currentUser.name);
       if (match) ss.value = match.value;
       startAutoRefresh();
+      restoreAutosaveIfAny(); // 入力途中で閉じた/リロードされた画面があれば復元を確認
     })
     .catch(() => {
       status.textContent = '⚠ 通信エラーが発生しました。再度お試しください';
@@ -1409,6 +1533,7 @@ function saveRecord() {
   .finally(() => {
     btn.textContent = '保存と企業様へ送信';
     btn.classList.remove('disabled');
+    clearAutosaveState(); // 送信完了後は自動保存の下書きも破棄
     resetForm();
   });
   }); // fetchLatestSomu.then
