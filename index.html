@@ -545,6 +545,7 @@ function autosaveState() {
     const state = {
       companyId: document.getElementById('companySelect')?.value || '',
       staffName: document.getElementById('staffSelect')?.value || '',
+      userEmail: currentUser?.email || '', // 復元時に同一ユーザーかどうかの照合に使う（他担当者への情報漏洩防止）
       interviewMode: document.getElementById('traineeSection')?.classList.contains('show') || false,
       traineeNames: rows.map(r => r.select.value).filter(Boolean),
       checks: [0,1,2,3,4].map(i => !!document.getElementById('ck'+i)?.checked),
@@ -559,24 +560,24 @@ function clearAutosaveState() {
   clearAutosavedPhotos();
 }
 
-// ログイン直後・DB取得後に呼び出す。保存済みの状態があれば画面に復元する
-function restoreAutosaveIfAny() {
+// 企業を選択した直後にのみ呼び出す。選択中の企業＆ログイン中ユーザーに一致する
+// 自動保存データがある場合のみ復元を提案する（他企業・他担当者のデータは一切参照しない）。
+function restoreAutosaveIfAny(co) {
+  if (!co) return;
   let raw;
   try { raw = localStorage.getItem(AUTOSAVE_LS_KEY); } catch (e) { return; }
   if (!raw) return;
   let state;
   try { state = JSON.parse(raw); } catch (e) { return; }
   if (!state || !state.companyId) return;
-  const co = DB.companies.find(c => c.id === state.companyId);
-  if (!co) return; // 対象企業が現在の担当リストにない（権限外等）場合は復元しない
+  if (state.companyId !== co.id) return;                       // 今選択中の企業のデータのみ対象
+  if (!currentUser || state.userEmail !== currentUser.email) return; // 保存時と同一ユーザーのみ対象
 
-  if (!confirm('前回入力途中のデータが見つかりました。復元しますか？\n（「キャンセル」を選ぶと破棄して新規入力になります）')) {
+  if (!confirm('この企業について、前回入力途中のデータが見つかりました。復元しますか？\n（「キャンセル」を選ぶと破棄して新規入力になります）')) {
     clearAutosaveState();
     return;
   }
 
-  document.getElementById('companySelect').value = state.companyId;
-  onCompanyChange();
   if (state.staffName) document.getElementById('staffSelect').value = state.staffName;
 
   // 面談状態＋選択済み実習生の復元
@@ -710,7 +711,10 @@ function onCompanyChange() {
   const id = document.getElementById('companySelect').value;
   if (id) startSaveEventPolling(id); else stopSaveEventPolling();
   const co = DB.companies.find(c => c.id === id);
-  currentTrainees = co ? co.trainees : [];
+  // 企業が「未選択」に戻された場合は、写真・チェックリスト・次回予定・署名を含む
+  // 全入力内容を即座に初期化する（前企業/前セッションのデータ残留防止）
+  if (!co) { updateRestrictedStaffOptions(null); clearFormInputs(); return; }
+  currentTrainees = co.trainees;
   rows = [];
   document.getElementById('traineeList').innerHTML = '';
   if (document.getElementById('traineeSection').classList.contains('show') && currentTrainees.length > 0) addTrainee();
@@ -757,6 +761,8 @@ function onCompanyChange() {
       if (el) el.style.display = 'none';
     });
   }
+  // 企業を明確に選択した直後にのみ、自動保存データの復元可否を確認する
+  restoreAutosaveIfAny(co);
 }
 
 // 下書きの楽観的ロック用base値（読み込み時のタイムスタンプ・サイズを記録）
@@ -1068,16 +1074,13 @@ function clearCanvas(id) {
   }
 }
 
-function resetForm() {
+// フォーム入力内容の完全クリア（企業・担当者プルダウンの値は呼び出し側の責務とし、ここでは触らない）
+// resetForm()（送信後・ログアウト時）と onCompanyChange()（企業を「未選択」に戻した時）の両方から共有し、
+// 情報漏洩・データ残留（前の企業/前回セッションの入力内容が残ったまま見える）を防ぐ。
+function clearFormInputs() {
   somuDraftBase  = { modified: null, size: null };
   staffDraftBase = { modified: null, size: null };
-  stopSaveEventPolling();
   clearCanvas('signCanvas');
-
-  // 企業・担当者プルダウンをクリア
-  document.getElementById('companySelect').value = '';
-  document.getElementById('staffSelect').value = '';
-  updateRestrictedStaffOptions(null); // 企業限定担当者の選択肢もクリア
   currentTrainees = [];
 
   // 面談実習生リストクリア
@@ -1127,6 +1130,14 @@ function resetForm() {
   updateCcBlockState('cc3Enabled', 'cc3Block');
 }
 
+// 送信完了後・ログアウト時：企業/担当者プルダウンも含めて完全初期化
+function resetForm() {
+  stopSaveEventPolling();
+  document.getElementById('companySelect').value = '';
+  document.getElementById('staffSelect').value = '';
+  updateRestrictedStaffOptions(null);
+  clearFormInputs();
+}
 
 // ── テキストエリア自動リサイズ ──
 function autoResize(el) {
@@ -1283,7 +1294,8 @@ function handleCredentialResponse(response) {
       const match = Array.from(ss.options).find(o => o.value === currentUser.name);
       if (match) ss.value = match.value;
       startAutoRefresh();
-      restoreAutosaveIfAny(); // 入力途中で閉じた/リロードされた画面があれば復元を確認
+      // 自動復元はここでは行わない（企業未選択の状態で前回データが見えるのは
+      // 情報漏洩リスクのため）。復元の判定は企業を選択した直後にのみ行う。
     })
     .catch(() => {
       status.textContent = '⚠ 通信エラーが発生しました。再度お試しください';
@@ -1308,10 +1320,21 @@ function refreshDb() {
         DB = data.db;
         injectTestCompany();
         populateSelects();
-        // 選択状態を復元
+        // 選択状態を復元。ここでonCompanyChange()は呼ばない
+        // （呼ぶと入力中の報告事項・総合所見・要望事項・実習生選択がすべて
+        //   消去されてしまうため。企業マスタ由来の情報のみ非破壊で更新する）
         if (prevCompany) {
           document.getElementById('companySelect').value = prevCompany;
-          onCompanyChange();
+          const co = DB.companies.find(c => c.id === prevCompany);
+          if (co) {
+            const ci = document.getElementById('contactInfo');
+            ci.style.display = '';
+            ci.textContent = '宛先：' + co.contactName + ' 様　' + co.contactEmail;
+            applyCompanyContacts(co);
+            updateRestrictedStaffOptions(co);
+            renderResidenceList(co);
+            currentTrainees = co.trainees || [];
+          }
         }
         if (prevStaff) document.getElementById('staffSelect').value = prevStaff;
         btn.title = '最終更新: ' + new Date().toLocaleTimeString('ja-JP');
@@ -1329,9 +1352,11 @@ function refreshDb() {
     });
 }
 
+// 5分間隔の自動ポーリングは廃止（入力中データがバックグラウンド通信で
+// 意図せず上書き・消失する不具合の原因だったため）。
+// データ更新は「🔄 更新」ボタンによるユーザーの明示操作でのみ行う。
 function startAutoRefresh() {
   stopAutoRefresh();
-  autoRefreshTimer = setInterval(refreshDb, AUTO_REFRESH_INTERVAL);
 }
 
 function stopAutoRefresh() {
