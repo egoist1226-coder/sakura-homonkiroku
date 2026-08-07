@@ -774,10 +774,45 @@ function loadDraft(companyId) {
   fetch(GAS_URL + '?action=getDraft&companyId=' + encodeURIComponent('staff_' + companyId))
     .then(r => r.json())
     .then(res => {
-      if (res.status === 'ok' && res.draft && (res.draft.sokenText || res.draft.reportNote)) {
+      const d = res.draft;
+      const hasContent = d && (d.sokenText || d.reportNote || d.interviewMode || (d.traineeNames && d.traineeNames.length) ||
+        (d.checks && d.checks.some(Boolean)) || d.nextVisitDate || d.nextVisitUndecided);
+      if (res.status === 'ok' && hasContent) {
         staffDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
-        if (res.draft.reportNote) { document.getElementById('reportNote').value = res.draft.reportNote; autoResize(document.getElementById('reportNote')); }
-        if (res.draft.sokenText) { document.getElementById('sokenText').value = res.draft.sokenText; autoResize(document.getElementById('sokenText')); }
+        if (d.reportNote) { document.getElementById('reportNote').value = d.reportNote; autoResize(document.getElementById('reportNote')); }
+        if (d.sokenText) { document.getElementById('sokenText').value = d.sokenText; autoResize(document.getElementById('sokenText')); }
+
+        // 面談対象者の復元
+        if (d.interviewMode) {
+          setInterview(true);
+          if (Array.isArray(d.traineeNames) && d.traineeNames.length) {
+            rows = []; document.getElementById('traineeList').innerHTML = '';
+            d.traineeNames.forEach(name => {
+              addTrainee();
+              const last = rows[rows.length - 1];
+              if (last) { last.select.value = name; onNameChange(rows.length - 1); }
+            });
+          }
+        }
+
+        // チェックリストの復元
+        if (Array.isArray(d.checks)) {
+          d.checks.forEach((v, i) => {
+            const el = document.getElementById('ck'+i);
+            if (el) el.checked = !!v;
+          });
+        }
+
+        // 次回訪問予定の復元
+        if (d.nextVisitUndecided) {
+          document.getElementById('nextDateUndecided').checked = true;
+          onNextVisitUndecidedChange();
+        } else if (d.nextVisitDate) {
+          document.getElementById('nextDate').value = d.nextVisitDate;
+          if (d.nextVisitTime) document.getElementById('nextTime').value = d.nextVisitTime;
+          onNextVisitChange();
+        }
+
         document.getElementById('staffDraftBanner').style.display = '';
       } else {
         staffDraftBase = { modified: null, size: null };
@@ -813,6 +848,13 @@ function saveStaffDraft() {
     body: JSON.stringify({
       type: 'draft_staff', companyId: co.id, company: co.name,
       reportNote: document.getElementById('reportNote').value, sokenText: note,
+      // 面談対象者・チェックリスト・次回訪問予定も下書きとして保存する
+      interviewMode: document.getElementById('traineeSection').classList.contains('show'),
+      traineeNames: rows.map(r => r.select.value).filter(Boolean),
+      checks: [0,1,2,3,4].map(i => !!document.getElementById('ck'+i)?.checked),
+      nextVisitDate: document.getElementById('nextDate').value,
+      nextVisitTime: document.getElementById('nextTime').value,
+      nextVisitUndecided: document.getElementById('nextDateUndecided').checked,
       baseModified: staffDraftBase.modified, baseSize: staffDraftBase.size
     })
   })

@@ -340,7 +340,7 @@ function createVisitPdf(data) {
   body.appendParagraph('');
 
   // ── 署名 ──
-  addSectionTitle(body, '■ 訪問担当者署名');
+  addSectionTitle(body, '■ 受入企業ご担当者さま、または訪問担当者署名');
   if (data.signatureImage && data.signatureImage.indexOf('data:image') === 0) {
     try {
       var base64 = data.signatureImage.split(',')[1];
