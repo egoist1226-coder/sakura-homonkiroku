@@ -397,6 +397,10 @@
         {
           "name": "原　陽一",
           "email": "youichi-hara@narikidai.jp"
+        },
+        {
+          "name": "大井　貴美",
+          "email": "takami-oi@narikidai.jp"
         }
       ],
       "trainees": [
@@ -433,18 +437,6 @@
           "birthDate": "1999年04月24日",
           "cardNo": "LJ19079544EA",
           "residenceExpiry": "2027年04月08日",
-          "applicationDate": "",
-          "applicationType": ""
-        },
-        {
-          "name": "BATBAYAR BAASANJARGAL",
-          "certNo": "",
-          "grade": "技能実習1号",
-          "nationality": "モンゴル",
-          "gender": "女",
-          "birthDate": "1991年08月30日",
-          "cardNo": "LJ20884347FA",
-          "residenceExpiry": "2027年01月23日",
           "applicationDate": "",
           "applicationType": ""
         },
