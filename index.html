@@ -776,7 +776,7 @@ function loadDraft(companyId) {
     .then(res => {
       const d = res.draft;
       const hasContent = d && (d.sokenText || d.reportNote || d.interviewMode || (d.traineeNames && d.traineeNames.length) ||
-        (d.checks && d.checks.some(Boolean)) || d.nextVisitDate || d.nextVisitUndecided);
+        (d.checks && d.checks.some(Boolean)) || d.nextVisitDate || d.nextVisitUndecided || (d.photos && d.photos.length));
       if (res.status === 'ok' && hasContent) {
         staffDraftBase = { modified: res.lastModified ?? null, size: res.fileSize ?? null };
         if (d.reportNote) { document.getElementById('reportNote').value = d.reportNote; autoResize(document.getElementById('reportNote')); }
@@ -811,6 +811,13 @@ function loadDraft(companyId) {
           document.getElementById('nextDate').value = d.nextVisitDate;
           if (d.nextVisitTime) document.getElementById('nextTime').value = d.nextVisitTime;
           onNextVisitChange();
+        }
+
+        // 写真の復元（サーバー保存分。他端末で撮影した写真もここで反映される）
+        if (Array.isArray(d.photos) && d.photos.length) {
+          photos = d.photos;
+          renderThumbnails();
+          autosavePhotos(); // この端末のローカルキャッシュ（IndexedDB）にも反映しておく
         }
 
         document.getElementById('staffDraftBanner').style.display = '';
@@ -848,13 +855,14 @@ function saveStaffDraft() {
     body: JSON.stringify({
       type: 'draft_staff', companyId: co.id, company: co.name,
       reportNote: document.getElementById('reportNote').value, sokenText: note,
-      // 面談対象者・チェックリスト・次回訪問予定も下書きとして保存する
+      // 面談対象者・チェックリスト・次回訪問予定・写真も下書きとして保存する
       interviewMode: document.getElementById('traineeSection').classList.contains('show'),
       traineeNames: rows.map(r => r.select.value).filter(Boolean),
       checks: [0,1,2,3,4].map(i => !!document.getElementById('ck'+i)?.checked),
       nextVisitDate: document.getElementById('nextDate').value,
       nextVisitTime: document.getElementById('nextTime').value,
       nextVisitUndecided: document.getElementById('nextDateUndecided').checked,
+      photos: photos, // 端末ローカルではなくGAS/Driveへ保存し、他端末からも参照できるようにする
       baseModified: staffDraftBase.modified, baseSize: staffDraftBase.size
     })
   })
