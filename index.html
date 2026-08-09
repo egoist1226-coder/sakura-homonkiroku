@@ -16,11 +16,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Hiragino Sans','Yu Gothic UI',sans-serif;background:#fdf0f3;color:#4a2030;font-size:14px;padding:16px}
 .form-wrap{max-width:700px;margin:0 auto;background:#fffbfc;border-radius:14px;box-shadow:0 2px 16px rgba(200,80,110,.08);overflow:hidden;border:1px solid #fad5e0}
-.form-header{background:linear-gradient(135deg,#f7b8ca 0%,#f0a0b8 100%);padding:18px 24px;text-align:center}
-.logo-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:5px}
-.form-header h2{font-size:17px;font-weight:700;letter-spacing:.08em;color:#4a1025}
+.form-header{background:linear-gradient(135deg,#f7b8ca 0%,#f0a0b8 100%);padding:22px 24px;text-align:center;position:relative;box-shadow:0 2px 8px rgba(150,50,80,.15)}
+.form-header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#fff5f8 0%,#e07898 50%,#fff5f8 100%)}
+.logo-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:5px}
+.logo-row img{filter:drop-shadow(0 2px 4px rgba(90,20,40,.25))}
+.form-header h2{font-size:19px;font-weight:800;letter-spacing:.1em;color:#4a1025;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .section{padding:14px 20px;border-bottom:1px solid #fad5e0}
-.sec-title{font-size:12px;font-weight:700;color:#c06080;margin-bottom:10px;padding-bottom:5px;border-bottom:1.5px solid #fad5e0;display:flex;align-items:center;gap:6px}
+.sec-title{font-size:12px;font-weight:700;color:#c06080;margin-bottom:16px;padding-bottom:6px;border-bottom:2px solid #fad5e0;display:flex;align-items:center;gap:6px;letter-spacing:.03em}
 .sec-title .icon{background:#fdf0f3;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:#d07090}
 .section.somu{background:#fffdf0}
 .somu .sec-title{color:#92400e;border-bottom-color:#fde8a0}
