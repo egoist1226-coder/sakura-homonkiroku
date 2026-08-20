@@ -259,9 +259,9 @@ function createVisitPdf(data) {
     logoCell.getChild(0).asParagraph().removeFromParent(); // セル既定の空段落を除去
 
     var titleP = titleCell.appendParagraph('訪問指導記録票');
-    titleP.setAttributes({[BOLD]: true, [SIZE]: 18});
+    titleP.setAttributes({[BOLD]: true, [SIZE]: 18, [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000', [DocumentApp.Attribute.UNDERLINE]: false});
     var orgP = titleCell.appendParagraph('公益社団法人さくら研修機構　/　さくら中央法務事務所');
-    orgP.setAttributes({[SIZE]: 10});
+    orgP.setAttributes({[SIZE]: 10, [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000', [DocumentApp.Attribute.UNDERLINE]: false, [BOLD]: false});
     titleCell.getChild(0).asParagraph().removeFromParent(); // セル既定の空段落を除去
     logoInserted = true;
   } catch (logoErr) {
@@ -272,27 +272,29 @@ function createVisitPdf(data) {
     var titleP2 = body.appendParagraph('訪問指導記録票');
     titleP2.setHeading(DocumentApp.ParagraphHeading.HEADING1);
     titleP2.setAlignment(CENTER);
+    titleP2.setAttributes({[DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000', [DocumentApp.Attribute.UNDERLINE]: false});
     var orgP2 = body.appendParagraph('公益社団法人さくら研修機構　/　さくら中央法務事務所');
     orgP2.setAlignment(CENTER);
-    orgP2.setAttributes({[SIZE]: 10});
+    orgP2.setAttributes({[SIZE]: 10, [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000', [DocumentApp.Attribute.UNDERLINE]: false, [BOLD]: false});
   }
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 基本情報 ──
   addSectionTitle(body, '■ 基本情報');
-  body.appendTable([
+  var infoTable = body.appendTable([
     ['訪問日時',     visitDate],
     ['企業名',       (data.company || '') + 'さま'],
     ['訪問担当者',   data.staff || ''],
     ['次回訪問予定', nextVisit]
   ]);
+  resetTableTextStyle(infoTable);
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 面談 ──
   addSectionTitle(body, '■ 面談実施状況');
-  body.appendParagraph('面談の有無：' + (data.interviewMode || 'なし'));
+  addBodyText(body, '面談の有無：' + (data.interviewMode || 'なし'));
 
   if (data.trainees && data.trainees.length > 0) {
     var rows = [['氏名', '在留資格', '国籍', '性別', '生年月日']];
@@ -300,48 +302,49 @@ function createVisitPdf(data) {
       rows.push([t.name||'', t.grade||'', t.nationality||'', t.gender||'', t.birthDate||'']);
     });
     var traineeTable = body.appendTable(rows);
+    resetTableTextStyle(traineeTable);
     // 列幅最適化：性別は文字が収まる最小幅に縮小、生年月日は折返しが起きない幅を確保、
     // その分氏名を最大限広く取る（単位はポイント／合計約450pt=A4想定の本文幅に収まる）
     var traineeColWidths = [150, 85, 65, 32, 118]; // 氏名/在留資格/国籍/性別/生年月日
     traineeColWidths.forEach(function(w, i) { traineeTable.setColumnWidth(i, w); });
   }
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── チェックリスト ──
   addSectionTitle(body, '■ 実地確認チェックリスト');
   if (data.checks && data.checks.length > 0) {
-    data.checks.forEach(function(c) { body.appendParagraph('☑ ' + c); });
+    data.checks.forEach(function(c) { addBodyText(body, '☑ ' + c); });
   } else {
-    body.appendParagraph('（チェック項目なし）');
+    addBodyText(body, '（チェック項目なし）');
   }
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 総務部要望事項 ──
   addSectionTitle(body, '■ さくら研修機構 総務部からの要望事項');
-  body.appendParagraph(data.somuNote || '（記載なし）');
+  addBodyText(body, data.somuNote || '（記載なし）');
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 報告事項 ──
   addSectionTitle(body, '■ 受入企業さま責任者・指導者からのご報告事項');
-  body.appendParagraph(data.reportNote || '（記載なし）');
+  addBodyText(body, data.reportNote || '（記載なし）');
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 総合所見 ──
   addSectionTitle(body, '■ 訪問担当者の総合所見');
-  body.appendParagraph(data.sokenText || '（記載なし）');
+  addBodyText(body, data.sokenText || '（記載なし）');
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 添付写真 ──
   addSectionTitle(body, '■ 添付写真');
   if (data.photos && data.photos.length > 0) {
     var PER_ROW = 3;   // 1行あたりの枚数（横並びグリッド）
     var THUMB_W = 150; // サムネイル幅(px)
-    var photoPara = body.appendParagraph('');
+    var photoPara = addBodyText(body, '');
     var pcount = 0;
     data.photos.forEach(function(dataUrl) {
       if (!dataUrl || dataUrl.indexOf('data:image') !== 0) return;
@@ -353,7 +356,7 @@ function createVisitPdf(data) {
         var pblob = Utilities.newBlob(Utilities.base64Decode(parts[1]), mime, 'photo');
         // PER_ROW枚ごとに改段落して横並びグリッドにする
         if (pcount > 0 && pcount % PER_ROW === 0) {
-          photoPara = body.appendParagraph('');
+          photoPara = addBodyText(body, '');
         }
         var pimg = photoPara.appendInlineImage(pblob);
         var ow = pimg.getWidth(), oh = pimg.getHeight();
@@ -363,12 +366,12 @@ function createVisitPdf(data) {
         pcount++;
       } catch(pe) {}
     });
-    if (pcount === 0) body.appendParagraph('（写真なし）');
+    if (pcount === 0) addBodyText(body, '（写真なし）');
   } else {
-    body.appendParagraph('（写真なし）');
+    addBodyText(body, '（写真なし）');
   }
 
-  body.appendParagraph('');
+  addBodyText(body, '');
 
   // ── 署名 ──
   addSectionTitle(body, '■ 受入企業ご担当者さま、または訪問担当者署名');
@@ -376,19 +379,24 @@ function createVisitPdf(data) {
     try {
       var base64 = data.signatureImage.split(',')[1];
       var imgBlob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/png', 'sig.png');
-      var sigPara = body.appendParagraph('');
+      var sigPara = addBodyText(body, '');
       sigPara.appendInlineImage(imgBlob).setWidth(200).setHeight(80);
     } catch(se) {
-      body.appendParagraph('（署名あり）');
+      addBodyText(body, '（署名あり）');
     }
   } else {
-    body.appendParagraph('（署名なし）');
+    addBodyText(body, '（署名なし）');
   }
 
-  body.appendParagraph('');
+  addBodyText(body, '');
   var footP = body.appendParagraph('記録日時：' + visitDate + '　担当：' + (data.staff || ''));
   footP.setAlignment(CENTER);
-  footP.setAttributes({[SIZE]: 9});
+  footP.setAttributes({
+    [SIZE]: 9,
+    [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000',
+    [DocumentApp.Attribute.UNDERLINE]: false,
+    [DocumentApp.Attribute.BOLD]: false
+  });
 
   doc.saveAndClose();
 
@@ -408,6 +416,46 @@ function addSectionTitle(body, title) {
   });
   p.setSpacingAfter(10); // 見出し直下の本文との間に約1行分の余白を確保
   return p;
+}
+
+// 本文用の段落を追加する共通ヘルパー。
+// DocumentAppは新規段落の文字スタイルを直前の段落の末尾スタイルから引き継ぐ仕様のため、
+// 見出し(addSectionTitle)の装飾（下線・アクセント色）が本文へ連鎖して漏れてしまう。
+// これを断ち切るため、本文として追加するすべての段落にここで明示的に
+// 黒色・下線なし・非ボールドを強制する。
+function addBodyText(container, text) {
+  var p = container.appendParagraph(text);
+  p.setAttributes({
+    [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000',
+    [DocumentApp.Attribute.UNDERLINE]: false,
+    [DocumentApp.Attribute.BOLD]: false
+  });
+  return p;
+}
+
+// テーブル内の全セル・全段落にも黒色・下線なしを強制する（appendTable直後に呼ぶ）。
+// DocumentAppは新規テーブルの既定文字スタイルも直前の段落から引き継ぐ場合があるため、
+// 見出しの装飾がテーブル内に漏れるケースへの防御。
+function resetTableTextStyle(table) {
+  var attrs = {
+    [DocumentApp.Attribute.FOREGROUND_COLOR]: '#000000',
+    [DocumentApp.Attribute.UNDERLINE]: false
+  };
+  var numRows = table.getNumRows();
+  for (var r = 0; r < numRows; r++) {
+    var row = table.getRow(r);
+    var numCells = row.getNumCells();
+    for (var c = 0; c < numCells; c++) {
+      var cell = row.getCell(c);
+      var numChildren = cell.getNumChildren();
+      for (var i = 0; i < numChildren; i++) {
+        var child = cell.getChild(i);
+        if (child.getType() === DocumentApp.ElementType.PARAGRAPH) {
+          child.asParagraph().setAttributes(attrs);
+        }
+      }
+    }
+  }
 }
 
 function doGet(e) {
