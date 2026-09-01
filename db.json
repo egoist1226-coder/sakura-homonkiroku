@@ -45,8 +45,8 @@
           "birthDate": "1997年06月10日",
           "cardNo": "LJ36514347EA",
           "residenceExpiry": "2027年11月21日",
-          "applicationDate": "7月30日",
-          "applicationType": "在留資格変更許可申請"
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "PHAN VAN PHUC",
@@ -119,8 +119,8 @@
           "birthDate": "1998年08月12日",
           "cardNo": "LJ31620386EA",
           "residenceExpiry": "2027年07月29日",
-          "applicationDate": "7月5日",
-          "applicationType": "更新申請"
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TRAN XUAN TRUONG",
@@ -167,8 +167,8 @@
           "birthDate": "1996年03月14日",
           "cardNo": "LJ36837004EA",
           "residenceExpiry": "2028年08月14日",
-          "applicationDate": "7月4日",
-          "applicationType": "更新申請"
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TA VAN THANG",
@@ -179,8 +179,8 @@
           "birthDate": "1998年01月06日",
           "cardNo": "LJ36845749EA",
           "residenceExpiry": "2028年08月14日",
-          "applicationDate": "7月4日",
-          "applicationType": "更新申請"
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -499,8 +499,8 @@
           "birthDate": "1994年07月19日",
           "cardNo": "LJ40353954EA",
           "residenceExpiry": "2027年08月10日",
-          "applicationDate": "7月4日",
-          "applicationType": "更新申請"
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "MOKBUL",
@@ -511,8 +511,8 @@
           "birthDate": "1988年02月02日",
           "cardNo": "LJ40353963EA",
           "residenceExpiry": "2027年08月10日",
-          "applicationDate": "7月4日",
-          "applicationType": "更新申請"
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HOANG VIET LAM",
@@ -683,8 +683,8 @@
           "birthDate": "1995年08月07日",
           "cardNo": "LJ36514356EA",
           "residenceExpiry": "2028年05月21日",
-          "applicationDate": "7月27日",
-          "applicationType": "在留期間更新許可申請"
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
