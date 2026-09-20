@@ -306,7 +306,7 @@
           "cardNo": "UH96592981EA",
           "residenceExpiry": "2026年11月05日",
           "applicationDate": "8月31日",
-          "applicationType": "在留資格更新許可申請"
+          "applicationType": "在留期間更新許可申請（許可済・カード発行待ち）"
         },
         {
           "name": "PHAM VAN TAI",
@@ -318,7 +318,7 @@
           "cardNo": "UH88424234EA",
           "residenceExpiry": "2026年11月05日",
           "applicationDate": "8月31日",
-          "applicationType": "在留資格更新許可申請"
+          "applicationType": "在留期間更新許可申請（許可済・カード発行待ち）"
         },
         {
           "name": "JAIPHO PHONWASIT",
@@ -437,8 +437,8 @@
           "birthDate": "1988年01月06日",
           "cardNo": "UH95415778EA",
           "residenceExpiry": "2026年11月27日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月7日",
+          "applicationType": "在留期間更新許可申請（許可済・カード発行待ち）"
         },
         {
           "name": "LKHAGVASUREN DOLJINSUREN",
@@ -449,8 +449,8 @@
           "birthDate": "1982年05月28日",
           "cardNo": "LJ24077726EA",
           "residenceExpiry": "2026年11月13日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月7日",
+          "applicationType": "在留資格変更許可申請"
         },
         {
           "name": "GANBAATAR NANDINTSETSEG",
@@ -535,8 +535,8 @@
           "birthDate": "1992年06月10日",
           "cardNo": "UH33055507EA",
           "residenceExpiry": "2026年09月26日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月20日",
+          "applicationType": "在留資格変更許可申請"
         },
         {
           "name": "NGUYEN NHU THUAT",
@@ -547,8 +547,8 @@
           "birthDate": "2001年02月28日",
           "cardNo": "UH56144636EA",
           "residenceExpiry": "2026年09月26日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月20日",
+          "applicationType": "在留資格変更許可申請"
         },
         {
           "name": "LE HUU DIEP",
@@ -633,8 +633,8 @@
           "birthDate": "1993年01月20日",
           "cardNo": "UH15092693EA",
           "residenceExpiry": "2026年09月25日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月20日",
+          "applicationType": "在留資格変更許可申請"
         },
         {
           "name": "MIJIDDORJ OTGONDULAM",
@@ -705,8 +705,8 @@
           "birthDate": "1998年06月07日",
           "cardNo": "UH70026456EA",
           "residenceExpiry": "2026年12月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月9日",
+          "applicationType": "在留期間更新許可申請"
         },
         {
           "name": "KHIN WINE",
@@ -717,8 +717,8 @@
           "birthDate": "2003年10月09日",
           "cardNo": "UH37071511EA",
           "residenceExpiry": "2026年12月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月9日",
+          "applicationType": "在留期間更新許可申請"
         },
         {
           "name": "NAN EI SAN",
@@ -729,8 +729,8 @@
           "birthDate": "1996年06月16日",
           "cardNo": "UH21132502EA",
           "residenceExpiry": "2026年12月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月9日",
+          "applicationType": "在留期間更新許可申請"
         },
         {
           "name": "SU THET MON",
@@ -741,8 +741,8 @@
           "birthDate": "1998年06月02日",
           "cardNo": "UH01430571EA",
           "residenceExpiry": "2026年12月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月9日",
+          "applicationType": "在留期間更新許可申請"
         },
         {
           "name": "YU WADI KHAING",
@@ -753,8 +753,8 @@
           "birthDate": "2005年05月05日",
           "cardNo": "UH72614275EA",
           "residenceExpiry": "2026年12月09日",
-          "applicationDate": "",
-          "applicationType": ""
+          "applicationDate": "9月9日",
+          "applicationType": "在留期間更新許可申請"
         }
       ]
     },
@@ -774,8 +774,8 @@
           "birthDate": "1994年01月11日",
           "cardNo": "LJ16863862EA",
           "residenceExpiry": "2026年10月03日",
-          "applicationDate": "7月30日",
-          "applicationType": "在留資格変更許可申請"
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
