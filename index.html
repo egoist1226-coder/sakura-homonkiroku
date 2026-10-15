@@ -1135,6 +1135,14 @@ function clearFormInputs() {
   clearCanvas('signCanvas');
   currentTrainees = [];
 
+  // 企業由来の表示（在留期限確認の実習生一覧・宛先）も必ず消す。
+  // ここが漏れていたため、企業未選択でも前の企業の実習生氏名・在留期限が見えていた。
+  renderResidenceList(null);
+  document.getElementById('residenceList').innerHTML = '';
+  const ci = document.getElementById('contactInfo');
+  ci.style.display = 'none'; ci.textContent = '';
+  updateAddBtn();
+
   // 面談実習生リストクリア
   rows = [];
   document.getElementById('traineeList').innerHTML = '';
