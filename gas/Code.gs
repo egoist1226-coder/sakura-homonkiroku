@@ -398,6 +398,11 @@ function createVisitPdf(data) {
     [DocumentApp.Attribute.BOLD]: false
   });
 
+  // 全文のフォントをMSゴシックに統一（中国語フォントへのフォールバック防止）。失敗してもPDF生成は続行
+  try {
+    body.editAsText().setFontFamily('MS Gothic');
+  } catch (fontErr) {}
+
   doc.saveAndClose();
 
   var pdf = DriveApp.getFileById(doc.getId()).getAs('application/pdf');

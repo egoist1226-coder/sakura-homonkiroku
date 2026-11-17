@@ -1,4 +1,4 @@
-const CACHE = 'sakura-v25';
+const CACHE = 'sakura-v26';
 const ASSETS = [
   './db.json',
   './manifest.json'
