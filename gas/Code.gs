@@ -374,21 +374,25 @@ function createVisitPdf(data) {
   addBodyText(body, '');
 
   // ── 署名 ──
-  addSectionTitle(body, '■ 受入企業ご担当者さま、または訪問担当者署名');
-  if (data.signatureImage && data.signatureImage.indexOf('data:image') === 0) {
-    try {
-      var base64 = data.signatureImage.split(',')[1];
-      var imgBlob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/png', 'sig.png');
-      var sigPara = addBodyText(body, '');
-      sigPara.appendInlineImage(imgBlob).setWidth(200).setHeight(80);
-    } catch(se) {
-      addBodyText(body, '（署名あり）');
+  // 「サインを省略する」がONで送信された場合は、見出しごと署名欄を出力しない
+  // （「（署名なし）」という表示も残さない）。メール添付・Drive保存の両方が同じPDFのため両方から除かれる。
+  if (data.signatureSkipped !== true) {
+    addSectionTitle(body, '■ 受入企業ご担当者さま、または訪問担当者署名');
+    if (data.signatureImage && data.signatureImage.indexOf('data:image') === 0) {
+      try {
+        var base64 = data.signatureImage.split(',')[1];
+        var imgBlob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/png', 'sig.png');
+        var sigPara = addBodyText(body, '');
+        sigPara.appendInlineImage(imgBlob).setWidth(200).setHeight(80);
+      } catch(se) {
+        addBodyText(body, '（署名あり）');
+      }
+    } else {
+      addBodyText(body, '（署名なし）');
     }
-  } else {
-    addBodyText(body, '（署名なし）');
-  }
 
-  addBodyText(body, '');
+    addBodyText(body, '');
+  }
   var footP = body.appendParagraph('記録日時：' + visitDate + '　担当：' + (data.staff || ''));
   footP.setAlignment(CENTER);
   footP.setAttributes({

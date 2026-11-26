@@ -71,6 +71,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#e890a8;backgr
 .soken-canvas{border:2px solid #fde68a;border-radius:10px;background:#fffdf0;overflow:hidden}
 .soken-canvas .sign-label{background:#fffbeb;color:#92400e}
 .sign-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+.sign-skip{display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px 12px;background:#fdf0f3;border:1px solid #fac8d8;border-radius:8px;font-size:13px;color:#4a2030;cursor:pointer}
+.sign-skip input{width:18px;height:18px;accent-color:#d6336c}
+.sign-skip-note{display:none;margin-bottom:6px;font-size:12px;color:#a07080}
+.sign-skip-note.show{display:block}
 .sign-text{background:#fdf5f8;border:1px solid #fac8d8;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#4a2030;line-height:1.9;display:flex;flex-direction:column;justify-content:center}
 .sign-text .date-line{margin-top:12px;font-size:11.5px;color:#a07080;border-top:1px solid #fac8d8;padding-top:8px}
 .sign-box{display:flex;flex-direction:column;gap:6px}
@@ -328,9 +332,14 @@ canvas{display:block;width:100%;height:130px;cursor:crosshair;touch-action:none}
   </div>
 
   <!-- G 署名 -->
-  <div class="section">
+  <div class="section" id="signSection">
     <div class="sec-title"><span class="icon">🌸</span>受入企業担当者　署名（訪問証明）</div>
-    <div class="sign-split">
+    <label class="sign-skip">
+      <input type="checkbox" id="signSkip" onchange="onSignSkipChange()">
+      サインを省略する
+    </label>
+    <div class="sign-skip-note" id="signSkipNote">サインを省略します。送信する訪問指導記録票（PDF）から署名欄は除かれます。</div>
+    <div class="sign-split" id="signBody">
       <div class="sign-text">
         本日、さくら研修機構担当者の訪問を受け、上記確認作業が終了しました。これを証するため右に署名します。
         <div class="date-line" id="dateDisplay">令和　　年　　月　　日（署名時に自動入力）</div>
@@ -1129,6 +1138,25 @@ function clearCanvas(id) {
   }
 }
 
+// 「サインを省略する」チェックボックス。ONの間はサイン欄を隠し、書いたサインも破棄する。
+// 送信時（record.signatureSkipped）とPDF出力時は、この状態を見て署名欄そのものを出力から除く。
+function isSignSkipped() {
+  return document.getElementById('signSkip').checked;
+}
+
+function onSignSkipChange() {
+  const skipped = isSignSkipped();
+  if (skipped) clearCanvas('signCanvas'); // 省略するのに前に書いたサインが残って送られないようにする
+  document.getElementById('signBody').style.display = skipped ? 'none' : '';
+  document.getElementById('signSkipNote').classList.toggle('show', skipped);
+}
+
+// 送信後・ログアウト・企業切替時の初期化用（チェックは毎回OFF＝原則サインを徴する運用に戻す）
+function resetSignSkip() {
+  document.getElementById('signSkip').checked = false;
+  onSignSkipChange();
+}
+
 // フォーム入力内容の完全クリア（企業・担当者プルダウンの値は呼び出し側の責務とし、ここでは触らない）
 // resetForm()（送信後・ログアウト時）と onCompanyChange()（企業を「未選択」に戻した時）の両方から共有し、
 // 情報漏洩・データ残留（前の企業/前回セッションの入力内容が残ったまま見える）を防ぐ。
@@ -1136,6 +1164,7 @@ function clearFormInputs() {
   somuDraftBase  = { modified: null, size: null };
   staffDraftBase = { modified: null, size: null };
   clearCanvas('signCanvas');
+  resetSignSkip();
   currentTrainees = [];
 
   // 企業由来の表示（在留期限確認の実習生一覧・宛先）も必ず消す。
@@ -1614,11 +1643,13 @@ function saveRecord() {
     somuNote: document.getElementById('somuNote').value,
     reportNote: document.getElementById('reportNote').value,
     sokenText: document.getElementById('sokenText').value,
-    signatureImage: document.getElementById('signCanvas').toDataURL('image/png'),
+    // サイン省略時は画像も時刻も送らず、GAS側が署名欄ごとPDFから除く
+    signatureSkipped: isSignSkipped(),
+    signatureImage: isSignSkipped() ? '' : document.getElementById('signCanvas').toDataURL('image/png'),
     nextVisit: document.getElementById('nextDateUndecided').checked
       ? '未定'
       : document.getElementById('nextDate').value + ' ' + document.getElementById('nextTime').value,
-    signTimestamp: document.getElementById('timestamp').textContent,
+    signTimestamp: isSignSkipped() ? '' : document.getElementById('timestamp').textContent,
     photos: photos.map(p => p.dataUrl)
   };
 
@@ -1677,6 +1708,12 @@ function exportPdf() {
       const bar = document.querySelector('.submit-bar');
       bar.style.display = 'none';
 
+      // サイン省略時は署名欄（セクション全体）もPDFから除く。撮影後は必ず元に戻す
+      const signSection = document.getElementById('signSection');
+      const hideSign = isSignSkipped();
+      if (hideSign) signSection.style.display = 'none';
+      const restoreSign = function() { if (hideSign) signSection.style.display = ''; };
+
       html2canvas(target, {
         scale: 2,
         useCORS: true,
@@ -1684,6 +1721,7 @@ function exportPdf() {
         logging: false
       }).then(function(canvas) {
         bar.style.display = '';
+        restoreSign();
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -1726,6 +1764,7 @@ function exportPdf() {
         btn.classList.remove('disabled');
       }).catch(function(err) {
         bar.style.display = '';
+        restoreSign();
         showToast('⚠ PDF生成に失敗しました');
         btn.textContent = 'PDF出力';
         btn.classList.remove('disabled');

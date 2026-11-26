@@ -43,10 +43,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "2001年01月28日",
-          "cardNo": "UH65367231EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月28日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51525944EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HOANG DINH TRONG",
@@ -130,18 +130,6 @@
           "gender": "男",
           "birthDate": "1996年03月14日",
           "cardNo": "LJ36837004EA",
-          "residenceExpiry": "2028年08月14日",
-          "applicationDate": "",
-          "applicationType": ""
-        },
-        {
-          "name": "TA VAN THANG",
-          "certNo": "",
-          "grade": "特定技能1号",
-          "nationality": "ベトナム",
-          "gender": "男",
-          "birthDate": "1998年01月06日",
-          "cardNo": "LJ36845749EA",
           "residenceExpiry": "2028年08月14日",
           "applicationDate": "",
           "applicationType": ""
@@ -322,9 +310,14 @@
     {
       "id": "wilburn",
       "name": "株式会社ウイルバーン商事",
-      "contactName": "",
-      "contactEmail": "",
-      "contacts": [],
+      "contactName": "御前　隆子",
+      "contactEmail": "misaki@willburn.co.jp",
+      "contacts": [
+        {
+          "name": "御前　隆子",
+          "email": "misaki@willburn.co.jp"
+        }
+      ],
       "trainees": [
         {
           "name": "HLWAN WAI AUNG",
@@ -461,10 +454,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "1993年10月20日",
-          "cardNo": "LJ23741166EA",
-          "residenceExpiry": "2026年11月15日",
-          "applicationDate": "9月28日",
-          "applicationType": "在留期間更新許可申請（特定活動）"
+          "cardNo": "LJ52562815EA",
+          "residenceExpiry": "2027年05月15日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "TRAN VAN THANG",
@@ -473,10 +466,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "1992年06月10日",
-          "cardNo": "UH33055507EA",
-          "residenceExpiry": "2026年09月26日",
-          "applicationDate": "9月20日",
-          "applicationType": "在留資格変更許可申請"
+          "cardNo": "LJ52562755EA",
+          "residenceExpiry": "2028年01月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "NGUYEN NHU THUAT",
@@ -485,10 +478,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "2001年02月28日",
-          "cardNo": "UH56144636EA",
-          "residenceExpiry": "2026年09月26日",
-          "applicationDate": "9月20日",
-          "applicationType": "在留資格変更許可申請"
+          "cardNo": "LJ52562773EA",
+          "residenceExpiry": "2028年01月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "LE HUU DIEP",
@@ -497,10 +490,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "1998年02月12日",
-          "cardNo": "UH00824888EA",
-          "residenceExpiry": "2026年10月08日",
-          "applicationDate": "9月1日",
-          "applicationType": "在留資格更新許可申請"
+          "cardNo": "LJ52562842EA",
+          "residenceExpiry": "2027年11月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HA VAN VUONG",
@@ -509,10 +502,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "2003年10月27日",
-          "cardNo": "UH15231802EA",
-          "residenceExpiry": "2026年10月08日",
-          "applicationDate": "9月1日",
-          "applicationType": "在留資格更新許可申請"
+          "cardNo": "LJ52562824EA",
+          "residenceExpiry": "2027年11月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "HOANG VAN AN",
@@ -521,10 +514,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "1996年10月07日",
-          "cardNo": "UH53174365FA",
-          "residenceExpiry": "2026年10月31日",
-          "applicationDate": "9月28日",
-          "applicationType": "在留資格変更許可申請"
+          "cardNo": "LJ52562782EA",
+          "residenceExpiry": "2027年11月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "NGUYEN VAN THANG",
@@ -533,10 +526,10 @@
           "nationality": "ベトナム",
           "gender": "男",
           "birthDate": "1998年03月26日",
-          "cardNo": "UH27989758FA",
-          "residenceExpiry": "2026年10月31日",
-          "applicationDate": "9月28日",
-          "applicationType": "在留資格変更許可申請"
+          "cardNo": "LJ52562790EA",
+          "residenceExpiry": "2027年11月09日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
@@ -559,22 +552,22 @@
           "nationality": "モンゴル",
           "gender": "女",
           "birthDate": "1990年09月12日",
-          "cardNo": "LJ76259942EA",
-          "residenceExpiry": "2027年01月15日",
-          "applicationDate": "10月28日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51525926EA",
+          "residenceExpiry": "2029年11月15日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "ERDENEBAATAR TSERENTOGTOKH",
-          "certNo": "認2404028846",
-          "grade": "技能実習2号",
+          "certNo": "",
+          "grade": "特定技能1号",
           "nationality": "モンゴル",
           "gender": "女",
           "birthDate": "1993年01月20日",
-          "cardNo": "UH15092693EA",
-          "residenceExpiry": "2026年09月25日",
-          "applicationDate": "9月20日",
-          "applicationType": "在留資格変更許可申請"
+          "cardNo": "LJ51003550EA",
+          "residenceExpiry": "2028年11月13日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "MIJIDDORJ OTGONDULAM",
@@ -643,10 +636,10 @@
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1998年06月07日",
-          "cardNo": "UH70026456EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月9日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51961544EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "KHIN WINE",
@@ -655,10 +648,10 @@
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "2003年10月09日",
-          "cardNo": "UH37071511EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月9日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51961535EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "NAN EI SAN",
@@ -667,10 +660,10 @@
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1996年06月16日",
-          "cardNo": "UH21132502EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月9日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51961517EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "SU THET MON",
@@ -679,10 +672,10 @@
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "1998年06月02日",
-          "cardNo": "UH01430571EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月9日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51961493EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         },
         {
           "name": "YU WADI KHAING",
@@ -691,10 +684,10 @@
           "nationality": "ミャンマー",
           "gender": "女",
           "birthDate": "2005年05月05日",
-          "cardNo": "UH72614275EA",
-          "residenceExpiry": "2026年12月09日",
-          "applicationDate": "9月9日",
-          "applicationType": "在留期間更新許可申請"
+          "cardNo": "LJ51961485EA",
+          "residenceExpiry": "2027年12月09日",
+          "applicationDate": "",
+          "applicationType": ""
         }
       ]
     },
